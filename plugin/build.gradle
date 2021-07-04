@@ -1,0 +1,52 @@
+plugins {
+    id 'kotlin'
+    id 'kotlin-kapt'
+    id 'maven-publish'
+}
+
+group='me.xiangning.simpleservice'
+version='1.0.0'
+
+// 打包sourcesJar任务
+//task sourcesJar(type: Jar, dependsOn: classes) {
+//    classifier = 'sources'
+//    from sourceSets.main.allSource
+//}
+
+publishing {
+    // 发布
+    publications {
+        mavenJava(MavenPublication) {
+            //指定group/artifact/version信息
+            groupId project.group
+            artifactId 'plugin-android'
+            version project.version
+            from components.java
+
+            // 增加 sourcesJar、javadocJar 任务
+//            artifact sourcesJar
+//            artifact javadocJar
+        }
+    }
+    // 发布仓库
+    repositories {
+        // 本地仓库位于USER_HOME/.m2/repository
+        mavenLocal()
+    }
+}
+
+//uploadArchives {
+//    repositories {
+//        mavenDeployer {
+//            repository(url: uri('../repo'))
+//        }
+//    }
+//}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+
+    implementation gradleApi()
+    implementation "com.android.tools.build:gradle:4.2.1"
+
+}
