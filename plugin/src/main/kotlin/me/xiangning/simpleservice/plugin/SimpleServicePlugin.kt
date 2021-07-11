@@ -27,13 +27,21 @@ class SimpleServicePlugin : Plugin<Project> {
 
             // app/build/generated/simpleservice/debug
             // app/build/generated/simpleservice/release
-            val generated = "generated" + File.separator + "simpleservice" + File.separator + variant.dirName
+            val generated =
+                "generated" + File.separator + "simpleservice" + File.separator + variant.dirName
 
-            val aidlDir = generated + File.separator + "aidl"
-            val absoluteAidl = File(project.buildDir, aidlDir)
-            processorOptions.arguments["simpleservice.outdir.aidl"] = absoluteAidl.absolutePath
+            val outDir = File(project.buildDir, generated)
+            val aidlDir = File(outDir, "aidl")
+            val sourceDir = File(outDir, "source")
 
-            val recompileAidl = RecompileAidlAction(absoluteAidl, sourceSet, aidlCompile)
+            processorOptions.arguments["simpleservice.outdir"] = outDir.absolutePath
+            processorOptions.arguments["simpleservice.outdir.aidl"] = aidlDir.absolutePath
+            processorOptions.arguments["simpleservice.outdir.source"] = sourceDir.absolutePath
+
+            // 添加source到java
+            sourceSet.java.srcDir(sourceDir)
+
+            val recompileAidl = RecompileAidlAction(aidlDir, sourceSet, aidlCompile)
 
             val compileKotlin = tasks.findByName("compile" + variant.name.capitalize() + "Kotlin")
             compileKotlin?.doFirst {
@@ -44,42 +52,7 @@ class SimpleServicePlugin : Plugin<Project> {
             compileJavac.doLast {
                 recompileAidl.recompileAidl("after compileJavac")
             }
-//
-//            val target = compileKotlin ?: compileJavac
-//
-//            // 在编译之前插入重新编译aidl的任务
-//            target.doFirst {
-//                android.sourceSets.getByName(variant.name).aidl.srcDir(aidlDir)
-//                aidl.taskAction()
-//            }
 
-
-//            val compileAidl = tasks.findByName("compile" + name + "Aidl")
-//            if (compileAidl == null) {
-//                println("not found compileAidl")
-//                return@onEach
-//            }
-
-//            val compileJavac = tasks.findByName("compile" + name + "JavaWithJavac")
-//            if (compileJavac is JavaCompile) {
-//                println("found compileJavac: $compileJavac")
-//
-//                compileJavac.doLast {
-//
-//                    variant.sourceSets.find { it.name == "main" }?.let {
-//                        it.aidlDirectories.add(File())
-//                    }
-//                    android.sourceSets.getByName("main") {
-//                        it.aidl.srcDir("build/generated/aidl")
-//                    }
-//
-//                    println("after compileJavac compile aidl")
-//                    compileAidl.actions.forEach { action ->
-//                        action.execute(compileAidl)
-//                    }
-//                }
-//
-//            }
         }
     }
 }

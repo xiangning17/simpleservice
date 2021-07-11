@@ -1,4 +1,4 @@
-package me.xiangning.simpleservice;
+package me.xiangning.simpleservice.music;
 
 import java.util.List;
 
@@ -10,5 +10,7 @@ import me.xiangning.annotation.Out;
  */
 @Aidl
 public interface MusicService {
-    void play(@Out List<String> names);
+    boolean play(@Out List<String> names);
+
+    void download(String name, OnDownloadListener listener);
 }

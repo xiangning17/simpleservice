@@ -33,6 +33,12 @@ android {
         jvmTarget = '1.8'
     }
 
+    sourceSets {
+        debug {
+            java.srcDirs += "build/generated/simpleservice/debug/source"
+        }
+    }
+
 //    compileJava {
 //        options.compilerArgs << "-Aoutpp:sasdasdasf"
 //    }
