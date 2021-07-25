@@ -2,7 +2,7 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id 'kotlin-kapt'
-    id 'xiangning.simpleservice'
+    id 'me.xiangning.simpleservice'
 }
 
 android {
@@ -33,24 +33,9 @@ android {
         jvmTarget = '1.8'
     }
 
-    sourceSets {
-        debug {
-            java.srcDirs += "build/generated/simpleservice/debug/source"
-        }
-    }
-
-//    compileJava {
-//        options.compilerArgs << "-Aoutpp:sasdasdasf"
-//    }
-
 }
 
 afterEvaluate {
-//    tasks.withType(JavaCompile) {
-//        println('current java compile: ' + it.name)
-//        getOptions().compilerArgs += "-Aoutpp=sasdasdasf"
-//    }
-
     println("root dir = " + project.rootDir)
     println("build dir = " + project.buildDir)
     println("project dir = " + project.projectDir)
@@ -65,12 +50,6 @@ afterEvaluate {
     }
 
 }
-
-//kapt {
-//    arguments {
-//        arg("mypath", "assssssss")
-//    }
-//}
 
 lint.enabled = false
 

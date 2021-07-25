@@ -10,38 +10,59 @@ import java.io.File
  * Created by xiangning on 2021/7/3.
  */
 class SimpleServicePlugin : Plugin<Project> {
+
+    private lateinit var project: Project
+    private lateinit var tasks: TaskContainer
+    private lateinit var android: AppExtension
+
+    private val outDirsByVariant = mutableMapOf<String, File>()
+
+    private val File.aidl: File
+        get() = File(this, "aidl")
+
+    private val File.source: File
+        get() = File(this, "source")
+
     override fun apply(project: Project) {
-        val tasks = project.tasks
-        val android = project.extensions.getByName("android") as AppExtension
+        this.project = project
+        tasks = project.tasks
+        android = project.extensions.getByName("android") as AppExtension
+        config()
         project.afterEvaluate {
-            configAfterEvaluate(project, android, tasks)
+            configAfterEvaluate()
         }
     }
 
-    private fun configAfterEvaluate(project: Project, android: AppExtension, tasks: TaskContainer) {
+    private fun config() {
+        android.applicationVariants.all { variant ->
+            // app/build/generated/simpleservice/debug
+            // app/build/generated/simpleservice/release
+            val generated =
+                "generated" + File.separator + "simpleservice" + File.separator + variant.dirName
+            outDirsByVariant[variant.name] = File(project.buildDir, generated).also { outDir ->
+                // 添加source子目录到源码路径
+                android.sourceSets.getByName(variant.name).java.srcDir(outDir.source)
+            }
+        }
+    }
+
+    private fun configAfterEvaluate() {
         android.applicationVariants.onEach { variant ->
             val sourceSet = android.sourceSets.getByName(variant.name)
 
             val processorOptions = variant.javaCompileOptions.annotationProcessorOptions
             val aidlCompile = variant.aidlCompileProvider.get()
 
-            // app/build/generated/simpleservice/debug
-            // app/build/generated/simpleservice/release
-            val generated =
-                "generated" + File.separator + "simpleservice" + File.separator + variant.dirName
-
-            val outDir = File(project.buildDir, generated)
-            val aidlDir = File(outDir, "aidl")
-            val sourceDir = File(outDir, "source")
-
+            val outDir = outDirsByVariant[variant.name]
+            if (outDir == null) {
+                println("SimpleServicePlugin Error: outDir[${variant.name}] is null")
+                return@onEach
+            }
             processorOptions.arguments["simpleservice.outdir"] = outDir.absolutePath
-            processorOptions.arguments["simpleservice.outdir.aidl"] = aidlDir.absolutePath
-            processorOptions.arguments["simpleservice.outdir.source"] = sourceDir.absolutePath
+            processorOptions.arguments["simpleservice.outdir.aidl"] = outDir.aidl.absolutePath
+            processorOptions.arguments["simpleservice.outdir.source"] = outDir.source.absolutePath
 
-            // 添加source到java
-            sourceSet.java.srcDir(sourceDir)
-
-            val recompileAidl = RecompileAidlAction(aidlDir, sourceSet, aidlCompile)
+            val recompileAidl = RecompileAidlAction(outDir.aidl, sourceSet, aidlCompile)
 
             val compileKotlin = tasks.findByName("compile" + variant.name.capitalize() + "Kotlin")
             compileKotlin?.doFirst {

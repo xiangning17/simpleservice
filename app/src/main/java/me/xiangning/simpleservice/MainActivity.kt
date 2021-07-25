@@ -1,11 +1,9 @@
 package me.xiangning.simpleservice
 
-//import me.xiangning.simpleservice.music.asRemoteWrapper
-//import me.xiangning.simpleservice.music.asMusicService
-//import me.xiangning.simpleservice.music.asRemoteWrapper
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import me.xiangning.simpleservice.music.MusicServiceImpl
+import me.xiangning.simpleservice.music.MusicServiceRemoteWrapper
 import me.xiangning.simpleservice.service.ServiceManager
 
 class MainActivity : AppCompatActivity() {
@@ -18,7 +16,7 @@ class MainActivity : AppCompatActivity() {
 
         val musicService = MusicServiceImpl()
 
-//        sm.publishService("music", musicService.asRemoteWrapper())
-//        sm.getService("music")!!
+        sm.publishService("music", MusicServiceRemoteWrapper(musicService))
+        sm.getService("music")!!
     }
 }
