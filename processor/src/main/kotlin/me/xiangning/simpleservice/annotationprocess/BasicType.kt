@@ -1,6 +1,6 @@
-package me.xiangning.annotation.processor
+package me.xiangning.simpleservice.annotationprocess
 
-import me.xiangning.annotation.processor.AidlUtils.asType
+import me.xiangning.simpleservice.annotationprocess.ProcessUtils.asType
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 import javax.lang.model.util.Types

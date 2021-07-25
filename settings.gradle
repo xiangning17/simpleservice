@@ -1,5 +1,5 @@
 rootProject.name = "SimpleService"
 include ':app'
-include ':annotation'
+include ':library'
 include ':processor'
 include ':plugin'

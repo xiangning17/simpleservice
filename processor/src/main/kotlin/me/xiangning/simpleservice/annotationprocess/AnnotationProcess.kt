@@ -1,10 +1,11 @@
-package me.xiangning.annotation.processor
+package me.xiangning.simpleservice.annotationprocess
 
 import com.google.auto.service.AutoService
-import me.xiangning.annotation.Aidl
-import me.xiangning.annotation.processor.AidlUtils.getOutDir
-import me.xiangning.annotation.processor.AidlUtils.simpleName
-import me.xiangning.annotation.processor.generator.*
+import me.xiangning.simpleservice.annotation.ParcelableAidl
+import me.xiangning.simpleservice.annotation.RemoteService
+import me.xiangning.simpleservice.annotationprocess.ProcessUtils.getOutDir
+import me.xiangning.simpleservice.annotationprocess.ProcessUtils.simpleName
+import me.xiangning.simpleservice.annotationprocess.generators.*
 import java.io.File
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.ProcessingEnvironment
@@ -16,7 +17,7 @@ import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
 
 @AutoService(Processor::class)
-class AidlProcess : AbstractProcessor() {
+class AnnotationProcess : AbstractProcessor() {
 
     companion object {
         val currentServices = mutableSetOf<String>()
@@ -25,11 +26,14 @@ class AidlProcess : AbstractProcessor() {
     @Synchronized
     override fun init(processingEnv: ProcessingEnvironment) {
         super.init(processingEnv)
-        AidlUtils.init(processingEnv)
+        ProcessUtils.init(processingEnv)
     }
 
     override fun getSupportedAnnotationTypes(): MutableSet<String> {
-        return mutableSetOf(Aidl::class.java.canonicalName)
+        return mutableSetOf(
+            RemoteService::class.java.canonicalName,
+            ParcelableAidl::class.java.canonicalName
+        )
     }
 
     override fun getSupportedSourceVersion(): SourceVersion {
@@ -44,15 +48,16 @@ class AidlProcess : AbstractProcessor() {
             return false
         }
 
-        val annotated = roundEnv.getElementsAnnotatedWith(Aidl::class.java)
-        val parcelables = annotated.filterIsInstance<TypeElement>()
+        val parcelables = roundEnv.getElementsAnnotatedWith(ParcelableAidl::class.java)
+            .filterIsInstance<TypeElement>()
             .filter { type ->
                 type.kind.isClass && type.interfaces.find {
                     it.simpleName == "Parcelable"
                 } != null
             }
 
-        val services = annotated.filter { it.kind.isInterface }
+        val services = roundEnv.getElementsAnnotatedWith(RemoteService::class.java)
+            .filter { it.kind.isInterface }
             .filterIsInstance<TypeElement>()
         // 保存当前服务
         currentServices.addAll(services.map { it.qualifiedName.toString() })

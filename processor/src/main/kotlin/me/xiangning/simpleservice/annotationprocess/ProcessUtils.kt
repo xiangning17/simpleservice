@@ -1,4 +1,4 @@
-package me.xiangning.annotation.processor
+package me.xiangning.simpleservice.annotationprocess
 
 import java.io.File
 import java.io.FileWriter
@@ -15,7 +15,7 @@ import javax.tools.StandardLocation
 /**
  * Created by xiangning on 2021/7/11.
  */
-object AidlUtils {
+object ProcessUtils {
 
     const val INDENTS = "    "
     val REX_QUALIFY_NORMALIZE = Regex("[_a-zA-Z0-9.]+\\.([_a-zA-Z0-9]+)")
@@ -91,7 +91,7 @@ object AidlUtils {
      */
     fun String.transformServiceName(): String {
         return REX_QUALIFY_NORMALIZE.replace(this) {
-            if (AidlProcess.currentServices.contains(it.value)) {
+            if (AnnotationProcess.currentServices.contains(it.value)) {
                 it.value + AIDL_SUFFIX
             } else {
                 it.value
@@ -100,7 +100,7 @@ object AidlUtils {
     }
 
     fun String.isAidlService(): Boolean {
-        return AidlProcess.currentServices.contains(this)
+        return AnnotationProcess.currentServices.contains(this)
     }
 
     fun isBasicType(type: String) = basicTypes.isBasicType(type)

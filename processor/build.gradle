@@ -19,5 +19,5 @@ dependencies {
     api gradleApi()
     api localGroovy()
 
-    implementation project(path: ':annotation')
+    implementation project(path: ':library')
 }

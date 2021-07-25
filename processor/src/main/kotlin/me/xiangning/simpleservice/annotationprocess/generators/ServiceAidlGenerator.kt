@@ -1,19 +1,19 @@
-package me.xiangning.annotation.processor.generator
+package me.xiangning.simpleservice.annotationprocess.generators
 
-import me.xiangning.annotation.InOut
-import me.xiangning.annotation.OneWay
-import me.xiangning.annotation.Out
-import me.xiangning.annotation.processor.AidlUtils
-import me.xiangning.annotation.processor.AidlUtils.DATE_FORMAT
-import me.xiangning.annotation.processor.AidlUtils.INDENTS
-import me.xiangning.annotation.processor.AidlUtils.getOutAidlDir
-import me.xiangning.annotation.processor.AidlUtils.isBasicType
-import me.xiangning.annotation.processor.AidlUtils.packageName
-import me.xiangning.annotation.processor.AidlUtils.save
-import me.xiangning.annotation.processor.AidlUtils.simpleName
-import me.xiangning.annotation.processor.AidlUtils.transformService
-import me.xiangning.annotation.processor.AidlUtils.transformServiceName
-import me.xiangning.annotation.processor.SourceGenerator
+import me.xiangning.simpleservice.annotation.InOut
+import me.xiangning.simpleservice.annotation.OneWay
+import me.xiangning.simpleservice.annotation.Out
+import me.xiangning.simpleservice.annotationprocess.ProcessUtils
+import me.xiangning.simpleservice.annotationprocess.ProcessUtils.DATE_FORMAT
+import me.xiangning.simpleservice.annotationprocess.ProcessUtils.INDENTS
+import me.xiangning.simpleservice.annotationprocess.ProcessUtils.getOutAidlDir
+import me.xiangning.simpleservice.annotationprocess.ProcessUtils.isBasicType
+import me.xiangning.simpleservice.annotationprocess.ProcessUtils.packageName
+import me.xiangning.simpleservice.annotationprocess.ProcessUtils.save
+import me.xiangning.simpleservice.annotationprocess.ProcessUtils.simpleName
+import me.xiangning.simpleservice.annotationprocess.ProcessUtils.transformService
+import me.xiangning.simpleservice.annotationprocess.ProcessUtils.transformServiceName
+import me.xiangning.simpleservice.annotationprocess.ServiceSourceGenerator
 import org.gradle.internal.impldep.org.apache.commons.lang.text.StrBuilder
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
@@ -23,19 +23,19 @@ import javax.lang.model.type.TypeMirror
 /**
  * Created by xiangning on 2021/7/11.
  */
-object ServiceAidlGenerator : SourceGenerator {
+object ServiceAidlGenerator : ServiceSourceGenerator {
 
     private lateinit var service: TypeElement
 
     private val content = StrBuilder()
 
     override fun start(service: TypeElement) {
-        this.service = service
+        ServiceAidlGenerator.service = service
         content.clear()
 
         // 接口声明头部
         content.append("\n\ninterface ")
-            .append(service.simpleName).append(AidlUtils.AIDL_SUFFIX)
+            .append(service.simpleName).append(ProcessUtils.AIDL_SUFFIX)
             .append(" {\n")
     }
 
@@ -88,7 +88,7 @@ object ServiceAidlGenerator : SourceGenerator {
             }
 
         // 写入文件
-        AidlUtils.getOutputFile(
+        ProcessUtils.getOutputFile(
             getOutAidlDir(),
             service.packageName, "${service.asType().transformService.simpleName()}.aidl"
         ).save(header.append(content).toString())

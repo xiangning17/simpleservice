@@ -1,12 +1,12 @@
 package me.xiangning.simpleservice
 
-import me.xiangning.annotation.Aidl
-import me.xiangning.annotation.OneWay
+import me.xiangning.simpleservice.annotation.OneWay
+import me.xiangning.simpleservice.annotation.ParcelableAidl
 
 /**
  * Created by xiangning on 2021/7/2.
  */
-@Aidl
+@ParcelableAidl
 interface UserService {
     @OneWay
     fun findByName(name: String)

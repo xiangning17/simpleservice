@@ -1,8 +1,12 @@
-package me.xiangning.annotation
+package me.xiangning.simpleservice.annotation
 
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.SOURCE)
-annotation class Aidl
+annotation class RemoteService
+
+@Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.SOURCE)
+annotation class ParcelableAidl
 
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.SOURCE)

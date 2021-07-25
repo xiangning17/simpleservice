@@ -1,18 +1,18 @@
-package me.xiangning.annotation.processor.generator
+package me.xiangning.simpleservice.annotationprocess.generators
 
-import me.xiangning.annotation.processor.AidlUtils
-import me.xiangning.annotation.processor.AidlUtils.DATE_FORMAT
-import me.xiangning.annotation.processor.AidlUtils.INDENTS
-import me.xiangning.annotation.processor.AidlUtils.getDefaultValue
-import me.xiangning.annotation.processor.AidlUtils.getOutSourceDir
-import me.xiangning.annotation.processor.AidlUtils.isAidlService
-import me.xiangning.annotation.processor.AidlUtils.normalizeName
-import me.xiangning.annotation.processor.AidlUtils.packageName
-import me.xiangning.annotation.processor.AidlUtils.save
-import me.xiangning.annotation.processor.AidlUtils.simpleName
-import me.xiangning.annotation.processor.AidlUtils.transformService
-import me.xiangning.annotation.processor.AidlUtils.transformServiceName
-import me.xiangning.annotation.processor.SourceGenerator
+import me.xiangning.simpleservice.annotationprocess.ProcessUtils
+import me.xiangning.simpleservice.annotationprocess.ProcessUtils.DATE_FORMAT
+import me.xiangning.simpleservice.annotationprocess.ProcessUtils.INDENTS
+import me.xiangning.simpleservice.annotationprocess.ProcessUtils.getDefaultValue
+import me.xiangning.simpleservice.annotationprocess.ProcessUtils.getOutSourceDir
+import me.xiangning.simpleservice.annotationprocess.ProcessUtils.isAidlService
+import me.xiangning.simpleservice.annotationprocess.ProcessUtils.normalizeName
+import me.xiangning.simpleservice.annotationprocess.ProcessUtils.packageName
+import me.xiangning.simpleservice.annotationprocess.ProcessUtils.save
+import me.xiangning.simpleservice.annotationprocess.ProcessUtils.simpleName
+import me.xiangning.simpleservice.annotationprocess.ProcessUtils.transformService
+import me.xiangning.simpleservice.annotationprocess.ProcessUtils.transformServiceName
+import me.xiangning.simpleservice.annotationprocess.ServiceSourceGenerator
 import org.gradle.internal.impldep.org.apache.commons.lang.text.StrBuilder
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
@@ -21,14 +21,14 @@ import javax.lang.model.element.TypeElement
 /**
  * Created by xiangning on 2021/7/11.
  */
-object ServiceLocalWrapperGenerator : SourceGenerator {
+object ServiceLocalWrapperGenerator : ServiceSourceGenerator {
 
     private lateinit var service: TypeElement
 
     private val content = StrBuilder()
 
     override fun start(service: TypeElement) {
-        this.service = service
+        ServiceLocalWrapperGenerator.service = service
         content.clear()
 
         // public class MusicServiceLocalWrapper implements MusicService {
@@ -43,8 +43,8 @@ object ServiceLocalWrapperGenerator : SourceGenerator {
         //    }
 
         val serviceType = service.simpleName.toString()
-        val serviceAidlType = serviceType + AidlUtils.AIDL_SUFFIX
-        val serviceLocalType = serviceType + AidlUtils.LOCAL_WRAPPER_SUFFIX
+        val serviceAidlType = serviceType + ProcessUtils.AIDL_SUFFIX
+        val serviceLocalType = serviceType + ProcessUtils.LOCAL_WRAPPER_SUFFIX
         content.append("\n\npublic class ")
             .append(serviceLocalType)
             .append(" implements ").append(service.simpleName)
@@ -101,7 +101,7 @@ object ServiceLocalWrapperGenerator : SourceGenerator {
             .append(method.parameters.joinToString(", ", "(", ");\n") { param ->
                 val normalizeName = param.asType().normalizeName
                 if (normalizeName.isAidlService()) {
-                    "new " + normalizeName.simpleName() + AidlUtils.REMOTE_WRAPPER_SUFFIX + "(" + param.simpleName + ")"
+                    "new " + normalizeName.simpleName() + ProcessUtils.REMOTE_WRAPPER_SUFFIX + "(" + param.simpleName + ")"
                 } else {
                     param.simpleName
                 }
@@ -158,10 +158,10 @@ object ServiceLocalWrapperGenerator : SourceGenerator {
             }
 
         // 写入文件
-        AidlUtils.getOutputFile(
+        ProcessUtils.getOutputFile(
             getOutSourceDir(),
             service.packageName,
-            "${service.simpleName.toString() + AidlUtils.LOCAL_WRAPPER_SUFFIX}.java"
+            "${service.simpleName.toString() + ProcessUtils.LOCAL_WRAPPER_SUFFIX}.java"
         ).save(header.append(content).toString())
     }
 

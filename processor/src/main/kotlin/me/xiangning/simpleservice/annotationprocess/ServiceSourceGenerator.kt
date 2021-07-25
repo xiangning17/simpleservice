@@ -1,4 +1,4 @@
-package me.xiangning.annotation.processor
+package me.xiangning.simpleservice.annotationprocess
 
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
@@ -6,7 +6,7 @@ import javax.lang.model.element.TypeElement
 /**
  * Created by xiangning on 2021/7/11.
  */
-interface SourceGenerator {
+interface ServiceSourceGenerator {
 
     fun start(service: TypeElement)
 

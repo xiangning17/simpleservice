@@ -3,14 +3,12 @@ package me.xiangning.simpleservice;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.util.List;
-
-import me.xiangning.annotation.Aidl;
+import me.xiangning.simpleservice.annotation.ParcelableAidl;
 
 /**
  * Created by xiangning on 2021/7/3.
  */
-@Aidl
+@ParcelableAidl
 public class Vip implements Parcelable {
 
     private String name;

@@ -2,13 +2,13 @@ package me.xiangning.simpleservice.music;
 
 import java.util.List;
 
-import me.xiangning.annotation.Aidl;
-import me.xiangning.annotation.Out;
+import me.xiangning.simpleservice.annotation.Out;
+import me.xiangning.simpleservice.annotation.ParcelableAidl;
 
 /**
  * Created by xiangning on 2021/7/3.
  */
-@Aidl
+@ParcelableAidl
 public interface MusicService {
     boolean play(@Out List<String> names);
 

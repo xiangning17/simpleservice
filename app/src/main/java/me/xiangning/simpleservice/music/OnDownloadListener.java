@@ -1,11 +1,11 @@
 package me.xiangning.simpleservice.music;
 
-import me.xiangning.annotation.Aidl;
+import me.xiangning.simpleservice.annotation.ParcelableAidl;
 
 /**
  * Created by xiangning on 2021/7/4.
  */
-@Aidl
+@ParcelableAidl
 public interface OnDownloadListener {
     void onProgress(int progress);
 }
