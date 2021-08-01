@@ -34,10 +34,10 @@ object SimpleService : ServiceManager {
     }
 
     override fun registerMethodErrorHandler(cls: Class<*>, handler: IMethodErrorHandler) {
-        TODO("Not yet implemented")
+        RemoteServiceHelper.registerMethodErrorHandler(cls, handler)
     }
 
     override fun getMethodErrorHandler(cls: Class<*>): IMethodErrorHandler {
-        TODO("Not yet implemented")
+        return RemoteServiceHelper.getMethodErrorHandler(cls)
     }
 }

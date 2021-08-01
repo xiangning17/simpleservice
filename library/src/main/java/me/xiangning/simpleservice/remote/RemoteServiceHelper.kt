@@ -4,6 +4,7 @@ import android.os.IBinder
 import android.os.IInterface
 import me.xiangning.simpleservice.ServiceManager
 import me.xiangning.simpleservice.SimpleService
+import me.xiangning.simpleservice.methoderror.DefaultValueMethodErrorHandler
 import me.xiangning.simpleservice.methoderror.IMethodErrorHandler
 import java.util.*
 
@@ -12,8 +13,11 @@ import java.util.*
  */
 object RemoteServiceHelper {
 
-    private val remotes = mutableMapOf<Class<*>, WeakHashMap<IBinder, Any>>()
-    private val proxies = WeakHashMap<IBinder, Any>()
+    private val remotes by lazy { mutableMapOf<Class<*>, WeakHashMap<IBinder, Any>>() }
+    private val proxies by lazy { WeakHashMap<IBinder, Any>() }
+
+    private val methodErrorHandlers = mutableMapOf<Class<*>, IMethodErrorHandler>()
+    private val DEFAULT_ERROR_HANDLER = DefaultValueMethodErrorHandler()
 
     fun getServiceRemote(cls: Class<*>, service: Any): IBinder {
         return remotes.getOrPut(cls) { WeakHashMap(1) }.let { map ->
@@ -34,11 +38,11 @@ object RemoteServiceHelper {
     }
 
     fun registerMethodErrorHandler(cls: Class<*>, handler: IMethodErrorHandler) {
-        TODO("Not yet implemented")
+        methodErrorHandlers[cls] = handler
     }
 
     fun getMethodErrorHandler(cls: Class<*>): IMethodErrorHandler {
-        TODO("Not yet implemented")
+        return methodErrorHandlers[cls] ?: DEFAULT_ERROR_HANDLER
     }
 
     private fun createServiceRemote(cls: Class<*>, service: Any): IBinder {
