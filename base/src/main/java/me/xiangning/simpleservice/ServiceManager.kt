@@ -11,9 +11,6 @@ interface ServiceManager {
     fun <T> publishService(cls: Class<T>, service: T): Boolean
     fun <T> publishRemoteService(cls: Class<T>, service: T): Boolean
 
-    fun stopService(cls: Class<*>)
-    fun stopRemoteService(cls: Class<*>)
-
     fun <T> getService(cls: Class<T>): T?
     fun <T> bindRemoteService(cls: Class<T>, onServiceBind: OnServiceBind<T>)
 

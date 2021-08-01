@@ -16,14 +16,6 @@ object SimpleService : ServiceManager {
         TODO("Not yet implemented")
     }
 
-    override fun stopService(cls: Class<*>) {
-        TODO("Not yet implemented")
-    }
-
-    override fun stopRemoteService(cls: Class<*>) {
-        TODO("Not yet implemented")
-    }
-
     override fun <T> getService(cls: Class<T>): T? {
         TODO("Not yet implemented")
     }
