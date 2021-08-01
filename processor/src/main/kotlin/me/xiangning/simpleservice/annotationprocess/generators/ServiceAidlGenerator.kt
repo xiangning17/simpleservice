@@ -1,5 +1,6 @@
 package me.xiangning.simpleservice.annotationprocess.generators
 
+import me.xiangning.simpleservice.SimpleServiceConstants
 import me.xiangning.simpleservice.annotation.InOut
 import me.xiangning.simpleservice.annotation.OneWay
 import me.xiangning.simpleservice.annotation.Out
@@ -35,7 +36,7 @@ object ServiceAidlGenerator : ServiceSourceGenerator {
 
         // 接口声明头部
         content.append("\n\ninterface ")
-            .append(service.simpleName).append(ProcessUtils.AIDL_SUFFIX)
+            .append(service.simpleName).append(SimpleServiceConstants.AIDL_SUFFIX)
             .append(" {\n")
     }
 

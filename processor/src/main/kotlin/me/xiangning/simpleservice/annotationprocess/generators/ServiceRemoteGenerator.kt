@@ -90,7 +90,7 @@ object ServiceRemoteGenerator : ServiceSourceGenerator {
             .append(method.parameters.joinToString(", ", "(", ")") { param ->
                 val normalizeName = param.asType().normalizeName
                 if (normalizeName.isAidlService()) {
-                    "this.sm.getServiceRemoteProxy(${normalizeName.simpleName()}.class, ${param.simpleName})"
+                    "this.sm.getServiceRemoteProxy(${normalizeName.simpleName()}.class, ${param.simpleName}.asBinder())"
                 } else {
                     param.simpleName
                 }
