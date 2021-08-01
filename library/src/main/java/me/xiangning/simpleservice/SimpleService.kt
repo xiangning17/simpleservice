@@ -2,6 +2,7 @@ package me.xiangning.simpleservice
 
 import android.os.IBinder
 import android.os.IInterface
+import me.xiangning.simpleservice.exception.RemoteServiceException
 import me.xiangning.simpleservice.methoderror.IMethodErrorHandler
 import me.xiangning.simpleservice.remote.RemoteServiceHelper
 
@@ -26,11 +27,19 @@ object SimpleService : ServiceManager {
     }
 
     override fun <T : Any, R : IBinder> getServiceRemote(cls: Class<T>, service: T): R {
-        return RemoteServiceHelper.getServiceRemote(cls, service) as R
+        try {
+            return RemoteServiceHelper.getServiceRemote(cls, service) as R
+        } catch (e: Exception) {
+            throw RemoteServiceException("get service remote failed")
+        }
     }
 
     override fun <T> getServiceRemoteProxy(cls: Class<T>, service: IInterface): T {
-        return RemoteServiceHelper.getServiceRemoteProxy(cls, service)
+        try {
+            return RemoteServiceHelper.getServiceRemoteProxy(cls, service)
+        } catch (e: Exception) {
+            throw RemoteServiceException("get service remote proxy failed")
+        }
     }
 
     override fun registerMethodErrorHandler(cls: Class<*>, handler: IMethodErrorHandler) {

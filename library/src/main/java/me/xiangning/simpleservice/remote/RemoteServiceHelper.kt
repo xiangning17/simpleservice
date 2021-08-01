@@ -4,6 +4,7 @@ import android.os.IBinder
 import android.os.IInterface
 import me.xiangning.simpleservice.ServiceManager
 import me.xiangning.simpleservice.SimpleService
+import me.xiangning.simpleservice.SimpleServiceConstants
 import me.xiangning.simpleservice.methoderror.DefaultValueMethodErrorHandler
 import me.xiangning.simpleservice.methoderror.IMethodErrorHandler
 import java.util.*
@@ -46,7 +47,7 @@ object RemoteServiceHelper {
     }
 
     private fun createServiceRemote(cls: Class<*>, service: Any): IBinder {
-        val remoteCls = Class.forName(cls.name + "Remote")
+        val remoteCls = Class.forName(cls.name + SimpleServiceConstants.REMOTE_SUFFIX)
         if (!IBinder::class.java.isAssignableFrom(remoteCls)) {
             throw RuntimeException("${cls.name}Remote is not subclass of IBinder")
         }
@@ -55,7 +56,7 @@ object RemoteServiceHelper {
     }
 
     private fun createServiceRemoteProxy(cls: Class<*>, service: IInterface): Any {
-        val proxyCls = Class.forName(cls.name + "RemoteProxy")
+        val proxyCls = Class.forName(cls.name + SimpleServiceConstants.REMOTE_PROXY_SUFFIX)
         if (!cls.isAssignableFrom(proxyCls)) {
             throw RuntimeException("${cls.name}RemoteProxy is not subclass of $cls")
         }

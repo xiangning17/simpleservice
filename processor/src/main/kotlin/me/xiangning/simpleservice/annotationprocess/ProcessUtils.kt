@@ -1,5 +1,6 @@
 package me.xiangning.simpleservice.annotationprocess
 
+import me.xiangning.simpleservice.SimpleServiceConstants
 import java.io.File
 import java.io.FileWriter
 import java.io.IOException
@@ -21,10 +22,6 @@ object ProcessUtils {
     val REX_QUALIFY_NORMALIZE = Regex("[_a-zA-Z0-9.]+\\.([_a-zA-Z0-9]+)")
     val REX_REMOVE_WILDCARD = Regex("\\? (extends|super) ")
     val DATE_FORMAT = SimpleDateFormat("YYYY/MM/dd HH:mm:ss")
-
-    const val AIDL_SUFFIX = "Binder"
-    const val REMOTE_SUFFIX = "Remote"
-    const val REMOTE_PROXY_SUFFIX = "RemoteProxy"
 
     private lateinit var env: ProcessingEnvironment
     private lateinit var basicTypes: BasicType
@@ -92,7 +89,7 @@ object ProcessUtils {
     fun String.transformServiceName(): String {
         return REX_QUALIFY_NORMALIZE.replace(this) {
             if (AnnotationProcess.currentServices.contains(it.value)) {
-                it.value + AIDL_SUFFIX
+                it.value + SimpleServiceConstants.AIDL_SUFFIX
             } else {
                 it.value
             }

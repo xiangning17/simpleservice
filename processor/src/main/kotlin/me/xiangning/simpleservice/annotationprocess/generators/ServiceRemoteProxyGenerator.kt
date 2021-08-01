@@ -2,6 +2,7 @@ package me.xiangning.simpleservice.annotationprocess.generators
 
 import me.xiangning.simpleservice.IRemoteServiceProxy
 import me.xiangning.simpleservice.ServiceManager
+import me.xiangning.simpleservice.SimpleServiceConstants
 import me.xiangning.simpleservice.annotationprocess.ProcessUtils
 import me.xiangning.simpleservice.annotationprocess.ProcessUtils.DATE_FORMAT
 import me.xiangning.simpleservice.annotationprocess.ProcessUtils.INDENTS
@@ -56,8 +57,8 @@ object ServiceRemoteProxyGenerator : ServiceSourceGenerator {
         //    }
 
         val serviceType = service.simpleName.toString()
-        val serviceAidlType = serviceType + ProcessUtils.AIDL_SUFFIX
-        val serviceLocalType = serviceType + ProcessUtils.REMOTE_PROXY_SUFFIX
+        val serviceAidlType = serviceType + SimpleServiceConstants.AIDL_SUFFIX
+        val serviceLocalType = serviceType + SimpleServiceConstants.REMOTE_PROXY_SUFFIX
         content.append("\n\npublic class ")
             .append(serviceLocalType)
             .append(" implements ").append(service.simpleName)
@@ -180,7 +181,7 @@ object ServiceRemoteProxyGenerator : ServiceSourceGenerator {
         ProcessUtils.getOutputFile(
             getOutSourceDir(),
             service.packageName,
-            "${service.simpleName.toString() + ProcessUtils.REMOTE_PROXY_SUFFIX}.java"
+            "${service.simpleName.toString() + SimpleServiceConstants.REMOTE_PROXY_SUFFIX}.java"
         ).save(header.append(content).toString())
     }
 

@@ -1,6 +1,7 @@
 package me.xiangning.simpleservice.annotationprocess.generators
 
 import me.xiangning.simpleservice.ServiceManager
+import me.xiangning.simpleservice.SimpleServiceConstants
 import me.xiangning.simpleservice.annotationprocess.ProcessUtils
 import me.xiangning.simpleservice.annotationprocess.ProcessUtils.DATE_FORMAT
 import me.xiangning.simpleservice.annotationprocess.ProcessUtils.INDENTS
@@ -40,10 +41,11 @@ object ServiceRemoteGenerator : ServiceSourceGenerator {
         //    }
 
         val serviceType = service.simpleName.toString()
-        val serviceRemoteType = serviceType + ProcessUtils.REMOTE_SUFFIX
+        val serviceRemoteType = serviceType + SimpleServiceConstants.REMOTE_SUFFIX
         content.append("\n\npublic class ")
             .append(serviceRemoteType)
-            .append(" extends ").append(service.simpleName).append(ProcessUtils.AIDL_SUFFIX)
+            .append(" extends ").append(service.simpleName)
+            .append(SimpleServiceConstants.AIDL_SUFFIX)
             .append(".Stub {\n")
 
         content.append(INDENTS).append("private ServiceManager sm;\n")
@@ -131,7 +133,7 @@ object ServiceRemoteGenerator : ServiceSourceGenerator {
         ProcessUtils.getOutputFile(
             getOutSourceDir(),
             service.packageName,
-            "${service.simpleName.toString() + ProcessUtils.REMOTE_SUFFIX}.java"
+            "${service.simpleName.toString() + SimpleServiceConstants.REMOTE_SUFFIX}.java"
         ).save(header.append(content).toString())
     }
 
