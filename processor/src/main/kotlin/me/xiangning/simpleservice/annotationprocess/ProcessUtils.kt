@@ -23,8 +23,8 @@ object ProcessUtils {
     val DATE_FORMAT = SimpleDateFormat("YYYY/MM/dd HH:mm:ss")
 
     const val AIDL_SUFFIX = "Binder"
-    const val REMOTE_WRAPPER_SUFFIX = "RemoteWrapper"
-    const val LOCAL_WRAPPER_SUFFIX = "LocalWrapper"
+    const val REMOTE_SUFFIX = "Remote"
+    const val REMOTE_PROXY_SUFFIX = "RemoteProxy"
 
     private lateinit var env: ProcessingEnvironment
     private lateinit var basicTypes: BasicType
@@ -36,17 +36,17 @@ object ProcessUtils {
 
     fun getOutDir(): String {
         return env.options["simpleservice.outdir"]
-            ?: throw IllegalArgumentException("未找到输出路径，请确保启用了EasyAidl插件")
+            ?: throw IllegalArgumentException("未找到输出路径，请确保启用了SimpleService插件")
     }
 
     fun getOutAidlDir(): String {
         return env.options["simpleservice.outdir.aidl"]
-            ?: throw IllegalArgumentException("未找到输出路径，请确保启用了EasyAidl插件")
+            ?: throw IllegalArgumentException("未找到输出路径，请确保启用了SimpleService插件")
     }
 
     fun getOutSourceDir(): String {
         return env.options["simpleservice.outdir.source"]
-            ?: throw IllegalArgumentException("未找到输出路径，请确保启用了EasyAidl插件")
+            ?: throw IllegalArgumentException("未找到输出路径，请确保启用了SimpleService插件")
     }
 
     fun getOutputFile(outputDir: String?, pkg: String, name: String): File {

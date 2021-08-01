@@ -8,8 +8,8 @@ import android.os.IInterface
  */
 interface IRemoteServiceProxy : IInterface {
 
-    fun setBinder(binder: IBinder)
-
     override fun asBinder(): IBinder
+
+    fun setBinder(binder: IBinder)
 
 }

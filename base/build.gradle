@@ -1,8 +1,6 @@
 plugins {
     id 'java-library'
     id 'kotlin'
-    id 'kotlin-kapt'
-    id 'groovy'
 }
 
 java {
@@ -11,13 +9,7 @@ java {
 }
 
 dependencies {
+    // 添加Android api编译依赖
+    compileOnly files('libs/android.jar')
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation 'com.google.auto.service:auto-service:1.0-rc6'
-
-    kapt 'com.google.auto.service:auto-service:1.0-rc6'
-
-    api gradleApi()
-    api localGroovy()
-
-    implementation project(path: ':base')
 }

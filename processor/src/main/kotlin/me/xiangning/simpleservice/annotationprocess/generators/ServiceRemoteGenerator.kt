@@ -1,5 +1,6 @@
 package me.xiangning.simpleservice.annotationprocess.generators
 
+import me.xiangning.simpleservice.ServiceManager
 import me.xiangning.simpleservice.annotationprocess.ProcessUtils
 import me.xiangning.simpleservice.annotationprocess.ProcessUtils.DATE_FORMAT
 import me.xiangning.simpleservice.annotationprocess.ProcessUtils.INDENTS
@@ -21,14 +22,14 @@ import javax.lang.model.element.TypeElement
 /**
  * Created by xiangning on 2021/7/11.
  */
-object ServiceRemoteWrapperGenerator : ServiceSourceGenerator {
+object ServiceRemoteGenerator : ServiceSourceGenerator {
 
     private lateinit var service: TypeElement
 
     private val content = StrBuilder()
 
     override fun start(service: TypeElement) {
-        ServiceRemoteWrapperGenerator.service = service
+        ServiceRemoteGenerator.service = service
         content.clear()
 
         // public class MusicServiceRemoteWrapper extends MusicServiceBinder.Stub {
@@ -39,15 +40,19 @@ object ServiceRemoteWrapperGenerator : ServiceSourceGenerator {
         //    }
 
         val serviceType = service.simpleName.toString()
-        val serviceRemoteType = serviceType + ProcessUtils.REMOTE_WRAPPER_SUFFIX
+        val serviceRemoteType = serviceType + ProcessUtils.REMOTE_SUFFIX
         content.append("\n\npublic class ")
             .append(serviceRemoteType)
             .append(" extends ").append(service.simpleName).append(ProcessUtils.AIDL_SUFFIX)
             .append(".Stub {\n")
 
+        content.append(INDENTS).append("private ServiceManager sm;\n")
         content.append(INDENTS).append("public ").append(serviceType).append(" service;\n\n")
-            .append(INDENTS).append("public ").append(serviceRemoteType).append("(")
+
+        content.append(INDENTS).append("public ").append(serviceRemoteType).append("(")
+            .append("ServiceManager sm, ")
             .append(serviceType).append(" service) {\n")
+            .append(INDENTS).append(INDENTS).append("this.sm = sm;\n")
             .append(INDENTS).append(INDENTS).append("this.service = service;\n")
             .append(INDENTS).append("}\n\n")
     }
@@ -83,7 +88,7 @@ object ServiceRemoteWrapperGenerator : ServiceSourceGenerator {
             .append(method.parameters.joinToString(", ", "(", ")") { param ->
                 val normalizeName = param.asType().normalizeName
                 if (normalizeName.isAidlService()) {
-                    "new " + normalizeName.simpleName() + ProcessUtils.LOCAL_WRAPPER_SUFFIX + "(" + param.simpleName + ")"
+                    "this.sm.getServiceRemoteProxy(${param.simpleName})"
                 } else {
                     param.simpleName
                 }
@@ -102,7 +107,11 @@ object ServiceRemoteWrapperGenerator : ServiceSourceGenerator {
             .append("\npackage ${service.packageName};\n")
 
         // import声明
-        imports.asSequence()
+        val imported = mutableListOf<String>().apply {
+            addAll(imports)
+            add(ServiceManager::class.java.canonicalName)
+        }
+        imported.asSequence()
             .flatMap { origin ->
                 val transformService = origin.transformServiceName()
                 if (transformService != origin) {
@@ -122,7 +131,7 @@ object ServiceRemoteWrapperGenerator : ServiceSourceGenerator {
         ProcessUtils.getOutputFile(
             getOutSourceDir(),
             service.packageName,
-            "${service.simpleName.toString() + ProcessUtils.REMOTE_WRAPPER_SUFFIX}.java"
+            "${service.simpleName.toString() + ProcessUtils.REMOTE_SUFFIX}.java"
         ).save(header.append(content).toString())
     }
 

@@ -74,8 +74,8 @@ class AnnotationProcess : AbstractProcessor() {
         // 为service生成aidl
         val generators = listOf(
             ServiceAidlGenerator,
-            ServiceRemoteWrapperGenerator,
-            ServiceLocalWrapperGenerator,
+            ServiceRemoteGenerator,
+            ServiceRemoteProxyGenerator,
         )
         services.forEach { service ->
             generators.forEach {

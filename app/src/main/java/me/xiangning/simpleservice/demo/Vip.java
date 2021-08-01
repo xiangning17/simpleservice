@@ -1,4 +1,4 @@
-package me.xiangning.simpleservice;
+package me.xiangning.simpleservice.demo;
 
 import android.os.Parcel;
 import android.os.Parcelable;

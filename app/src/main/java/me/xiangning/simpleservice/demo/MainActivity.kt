@@ -1,10 +1,9 @@
-package me.xiangning.simpleservice
+package me.xiangning.simpleservice.demo
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import me.xiangning.simpleservice.music.MusicServiceImpl
-import me.xiangning.simpleservice.music.MusicServiceRemote
-import me.xiangning.simpleservice.service.ServiceManager
+import me.xiangning.simpleservice.ServiceManager
+import me.xiangning.simpleservice.demo.music.MusicServiceImpl
 
 class MainActivity : AppCompatActivity() {
 
@@ -16,10 +15,10 @@ class MainActivity : AppCompatActivity() {
 
         val musicService = MusicServiceImpl()
 
-        sm.publishService(
-            "music",
-            MusicServiceRemote(musicService)
-        )
-        sm.getService("music")!!
+//        sm.publishService(
+//            "music",
+//            MusicServiceRemote(musicService)
+//        )
+//        sm.getService("music")!!
     }
 }

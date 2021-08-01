@@ -1,4 +1,4 @@
-package me.xiangning.simpleservice.music;
+package me.xiangning.simpleservice.demo.music;
 
 import me.xiangning.simpleservice.annotation.ParcelableAidl;
 

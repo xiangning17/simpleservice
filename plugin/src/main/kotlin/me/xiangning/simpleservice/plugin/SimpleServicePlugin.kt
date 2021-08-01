@@ -1,6 +1,10 @@
 package me.xiangning.simpleservice.plugin
 
 import com.android.build.gradle.AppExtension
+import com.android.build.gradle.BaseExtension
+import com.android.build.gradle.LibraryExtension
+import com.android.build.gradle.api.BaseVariant
+import org.gradle.api.DomainObjectSet
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.tasks.TaskContainer
@@ -13,7 +17,7 @@ class SimpleServicePlugin : Plugin<Project> {
 
     private lateinit var project: Project
     private lateinit var tasks: TaskContainer
-    private lateinit var android: AppExtension
+    private lateinit var android: BaseExtension
 
     private val outDirsByVariant = mutableMapOf<String, File>()
 
@@ -26,15 +30,26 @@ class SimpleServicePlugin : Plugin<Project> {
     override fun apply(project: Project) {
         this.project = project
         tasks = project.tasks
-        android = project.extensions.getByName("android") as AppExtension
+        android = project.extensions.getByName("android") as BaseExtension
         config()
         project.afterEvaluate {
             configAfterEvaluate()
         }
     }
 
+    private fun getVariants(): DomainObjectSet<BaseVariant> {
+        val android = this.android
+        if (android is AppExtension) {
+            return android.applicationVariants as DomainObjectSet<BaseVariant>
+        } else if (android is LibraryExtension) {
+            return android.libraryVariants as DomainObjectSet<BaseVariant>
+        } else {
+            throw RuntimeException("找不到‘android’扩展，请确保只在Android模块中启用SimpleService插件")
+        }
+    }
+
     private fun config() {
-        android.applicationVariants.all { variant ->
+        getVariants().all { variant ->
             // app/build/generated/simpleservice/debug
             // app/build/generated/simpleservice/release
             val generated =
@@ -47,7 +62,7 @@ class SimpleServicePlugin : Plugin<Project> {
     }
 
     private fun configAfterEvaluate() {
-        android.applicationVariants.onEach { variant ->
+        getVariants().onEach { variant ->
             val sourceSet = android.sourceSets.getByName(variant.name)
 
             val processorOptions = variant.javaCompileOptions.annotationProcessorOptions

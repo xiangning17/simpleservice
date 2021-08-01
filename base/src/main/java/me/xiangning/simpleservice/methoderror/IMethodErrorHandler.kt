@@ -1,4 +1,4 @@
-package me.xiangning.simpleservice
+package me.xiangning.simpleservice.methoderror
 
 /**
  * Created by xiangning on 2021/7/31.

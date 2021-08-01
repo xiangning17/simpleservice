@@ -1,4 +1,4 @@
-package me.xiangning.simpleservice
+package me.xiangning.simpleservice.demo
 
 import me.xiangning.simpleservice.annotation.OneWay
 import me.xiangning.simpleservice.annotation.ParcelableAidl
