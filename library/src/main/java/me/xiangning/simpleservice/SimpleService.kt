@@ -3,6 +3,7 @@ package me.xiangning.simpleservice
 import android.os.IBinder
 import android.os.IInterface
 import me.xiangning.simpleservice.methoderror.IMethodErrorHandler
+import me.xiangning.simpleservice.remote.RemoteServiceHelper
 
 /**
  * Created by xiangning on 2021/8/1.
@@ -24,12 +25,12 @@ object SimpleService : ServiceManager {
         TODO("Not yet implemented")
     }
 
-    override fun <T : IBinder> getServiceRemote(service: Any): T {
-        TODO("Not yet implemented")
+    override fun <T : Any, R : IBinder> getServiceRemote(cls: Class<T>, service: T): R {
+        return RemoteServiceHelper.getServiceRemote(cls, service) as R
     }
 
-    override fun <T> getServiceRemoteProxy(service: IInterface): T {
-        TODO("Not yet implemented")
+    override fun <T> getServiceRemoteProxy(cls: Class<T>, service: IInterface): T {
+        return RemoteServiceHelper.getServiceRemoteProxy(cls, service)
     }
 
     override fun registerMethodErrorHandler(cls: Class<*>, handler: IMethodErrorHandler) {

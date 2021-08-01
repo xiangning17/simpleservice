@@ -125,7 +125,7 @@ object ServiceRemoteProxyGenerator : ServiceSourceGenerator {
             .append(method.parameters.joinToString(", ", "(", ");\n") { param ->
                 val normalizeName = param.asType().normalizeName
                 if (normalizeName.isAidlService()) {
-                    "this.sm.getServiceRemote(${param.simpleName})"
+                    "this.sm.getServiceRemote(${normalizeName.simpleName()}.class, ${param.simpleName})"
                 } else {
                     param.simpleName
                 }

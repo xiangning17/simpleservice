@@ -14,8 +14,8 @@ interface ServiceManager {
     fun <T> getService(cls: Class<T>): T?
     fun <T> bindRemoteService(cls: Class<T>, onServiceBind: OnServiceBind<T>)
 
-    fun <T : IBinder> getServiceRemote(service: Any): T
-    fun <T> getServiceRemoteProxy(service: IInterface): T
+    fun <T : Any, R : IBinder> getServiceRemote(cls: Class<T>, service: T): R
+    fun <T> getServiceRemoteProxy(cls: Class<T>, service: IInterface): T
 
     fun registerMethodErrorHandler(cls: Class<*>, handler: IMethodErrorHandler)
     fun getMethodErrorHandler(cls: Class<*>): IMethodErrorHandler

@@ -10,7 +10,6 @@ import me.xiangning.simpleservice.annotation.RemoteService
 interface RemoteServiceManager {
     fun publishService(name: String, service: IBinder): Boolean
     fun getService(name: String): IBinder?
-    fun stopService(name: String)
 
     fun registerServiceStateListener(listener: OnRemoteServiceStateChanged)
     fun unregisterServiceStateListener(listener: OnRemoteServiceStateChanged)
