@@ -1,6 +1,7 @@
 package me.xiangning.simpleservice
 
 import android.os.IBinder
+import android.os.IInterface
 import me.xiangning.simpleservice.methoderror.IMethodErrorHandler
 
 /**
@@ -20,6 +21,7 @@ interface ServiceManager {
 
     fun <T : Any, R : IBinder> getServiceRemote(cls: Class<T>, service: T): R
     fun <T> getServiceRemoteProxy(cls: Class<T>, service: IBinder): T
+    fun <T : IInterface> getServiceRemoteInterface(proxy: Any): T
 
     fun registerMethodErrorHandler(cls: Class<*>, handler: IMethodErrorHandler)
     fun getMethodErrorHandler(cls: Class<*>): IMethodErrorHandler

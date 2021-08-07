@@ -6,11 +6,10 @@ import android.os.IBinder
 import me.xiangning.simpleservice.SimpleService
 import me.xiangning.simpleservice.log.SimpleServiceLog
 
-class RemoteService : Service() {
+class RemoteServiceBridge : Service() {
 
     companion object {
-        private const val TAG = "RemoteService"
-        val remoteServiceManager by lazy { RemoteServiceManagerImpl() }
+        private const val TAG = "RemoteServiceBridge"
     }
 
     override fun onBind(intent: Intent): IBinder {
@@ -18,7 +17,7 @@ class RemoteService : Service() {
         val binder =
             SimpleService.getServiceRemote<RemoteServiceManager, RemoteServiceManagerRemote>(
                 RemoteServiceManager::class.java,
-                remoteServiceManager
+                RemoteServiceManagerImpl
             )
 
         SimpleServiceLog.d(TAG) { "onBind end, $binder" }

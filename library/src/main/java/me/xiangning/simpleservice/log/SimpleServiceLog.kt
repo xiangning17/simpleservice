@@ -6,7 +6,7 @@ import me.xiangning.simpleservice.BuildConfig
 /**
  * Created by xiangning on 2021/8/7.
  */
-object SimpleServiceLog {
+internal object SimpleServiceLog {
 
     var debugable = BuildConfig.DEBUG
 

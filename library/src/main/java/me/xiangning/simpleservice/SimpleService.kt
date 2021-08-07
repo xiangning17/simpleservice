@@ -6,12 +6,14 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
+import android.os.IInterface
 import me.xiangning.simpleservice.exception.RemoteServiceException
 import me.xiangning.simpleservice.log.SimpleServiceLog
 import me.xiangning.simpleservice.methoderror.IMethodErrorHandler
-import me.xiangning.simpleservice.remote.RemoteService
+import me.xiangning.simpleservice.remote.RemoteServiceBridge
 import me.xiangning.simpleservice.remote.RemoteServiceHelper
 import me.xiangning.simpleservice.remote.RemoteServiceManager
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Created by xiangning on 2021/8/1.
@@ -21,7 +23,7 @@ object SimpleService : ServiceManager {
 
     private const val TAG = "SimpleService"
 
-    private val serviceMap = mutableMapOf<Class<*>, Any>()
+    private val serviceMap = ConcurrentHashMap<Class<*>, Any>()
 
     private var appContext: Context? = null
 
@@ -53,29 +55,48 @@ object SimpleService : ServiceManager {
         SimpleServiceLog.d(TAG) { "initRemoteService" }
         val appContext = context.applicationContext
         appContext.bindService(
-            Intent(appContext, RemoteService::class.java),
+            Intent(appContext, RemoteServiceBridge::class.java),
             object : ServiceConnection {
                 override fun onServiceConnected(name: ComponentName, service: IBinder) {
                     SimpleServiceLog.d(TAG) { "initRemoteService success" }
-                    val rsm = getServiceRemoteProxy(RemoteServiceManager::class.java, service)
-                    synchronized(this@SimpleService) {
-                        remoteServiceManager = rsm
-                        remoteServiceState = RemoteServiceState.READY
-                    }
-
-                    delayRemoteServiceCallbacks.forEach { it(rsm) }
-                    delayRemoteServiceCallbacks.clear()
+                    onRemoteServiceConnected(service)
                 }
 
                 override fun onServiceDisconnected(name: ComponentName?) {
                     SimpleServiceLog.d(TAG) { "initRemoteService disconnect" }
-                    remoteServiceState = RemoteServiceState.DISCONNECT
+                    synchronized(this@SimpleService) {
+                        remoteServiceState = RemoteServiceState.DISCONNECT
+                    }
                     // initRemoteService(context)
                 }
             },
             Context.BIND_AUTO_CREATE
         )
         this.appContext = appContext
+    }
+
+    private fun onRemoteServiceConnected(service: IBinder) {
+        val rsm = getServiceRemoteProxy(RemoteServiceManager::class.java, service)
+        synchronized(this@SimpleService) {
+            remoteServiceManager = rsm
+            remoteServiceState = RemoteServiceState.READY
+        }
+
+        delayRemoteServiceCallbacks.forEach { it(rsm) }
+        delayRemoteServiceCallbacks.clear()
+
+        rsm.registerServiceStateListener { name, updated ->
+            val cls = try {
+                Class.forName(name)
+            } catch (e: Exception) {
+                return@registerServiceStateListener
+            }
+
+            (serviceMap[cls] as? IRemoteServiceProxy)?.let { proxy ->
+                SimpleServiceLog.d(TAG) { "update remote service: $name" }
+                proxy.setBinder(updated)
+            }
+        }
     }
 
     private fun connectRemoteServiceManager(action: RemoteConnectCallback) {
@@ -112,6 +133,7 @@ object SimpleService : ServiceManager {
 
     override fun <T : Any> publishService(cls: Class<T>, service: T): Boolean {
         serviceMap[cls] = service
+        SimpleServiceLog.d(TAG) { "publish service: [${cls.name}] $service" }
         return true
     }
 
@@ -128,6 +150,7 @@ object SimpleService : ServiceManager {
         connectRemoteServiceManager { rsm ->
             try {
                 rsm.publishService(cls.name, getServiceRemote(cls, service))
+                SimpleServiceLog.d(TAG) { "publish remote service: [${cls.name}] $service" }
                 onRemoteServicePublish?.onPublishResult(null)
             } catch (e: Exception) {
                 SimpleServiceLog.e(TAG, e) { "publishRemoteService: ${e.message}" }
@@ -140,11 +163,20 @@ object SimpleService : ServiceManager {
         cls: Class<T>,
         onRemoteServiceBind: OnRemoteServiceBind<T>
     ) {
+        val cached = serviceMap[cls]
+        if (cls.isInstance(cached)) {
+            onRemoteServiceBind.onBindSuccess(cached as T)
+            return
+        }
+
         connectRemoteServiceManager { rsm ->
             val rs = rsm.getService(cls.name)
             if (rs != null) {
                 try {
-                    onRemoteServiceBind.onBindSuccess(getServiceRemoteProxy(cls, rs))
+                    val proxy = getServiceRemoteProxy(cls, rs)
+                    serviceMap[cls] = proxy
+                    SimpleServiceLog.d(TAG) { "bind remote service: [${cls.name}] $onRemoteServiceBind" }
+                    onRemoteServiceBind.onBindSuccess(proxy)
                 } catch (e: Exception) {
                     onRemoteServiceBind.onBindFailed(e)
                 }
@@ -168,6 +200,17 @@ object SimpleService : ServiceManager {
             return RemoteServiceHelper.getServiceRemoteProxy(cls, service)
         } catch (e: Exception) {
             throw RemoteServiceException("get service remote proxy failed")
+        }
+    }
+
+    override fun <T : IInterface> getServiceRemoteInterface(proxy: Any): T {
+        try {
+            return (proxy as IRemoteServiceProxy).getRemoteInterface() as T
+        } catch (e: Exception) {
+            throw RemoteServiceException(
+                "make sure the parameter is from 'bindRemoteService'," +
+                        " and the return type is correct", e
+            )
         }
     }
 

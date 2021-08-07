@@ -47,13 +47,23 @@ object ServiceRemoteProxyGenerator : ServiceSourceGenerator {
         //    }
         //
         //    @Override
-        //    public IBinder asBinder() {
-        //        return this.remote.asBinder();
+        //    public void setBinder(IBinder binder) {
+        //        this.remote = MusicServiceBinder.Stub.asInterface(binder);
         //    }
         //
         //    @Override
-        //    public void setBinder(IBinder binder) {
-        //        this.remote = MusicServiceBinder.Stub.asInterface(binder);
+        //    public IInterface getRemoteInterface() {
+        //        return this.remote;
+        //    }
+        //
+        //    @Override
+        //    public void setMethodErrorHandler(IMethodErrorHandler handler) {
+        //        this.handler = handler;
+        //    }
+        //
+        //    @Override
+        //    public IMethodErrorHandler getMethodErrorHandler() {
+        //        return this.handler;
         //    }
 
         val serviceType = service.simpleName.toString()
@@ -78,14 +88,25 @@ object ServiceRemoteProxyGenerator : ServiceSourceGenerator {
             .append(INDENTS).append("}\n\n")
 
         content.append(INDENTS).append("@Override\n")
-            .append(INDENTS).append("public IBinder asBinder() {\n")
-            .append(INDENTS).append(INDENTS).append("return this.remote.asBinder();\n")
-            .append(INDENTS).append("}\n\n")
-
-        content.append(INDENTS).append("@Override\n")
             .append(INDENTS).append("public void setBinder(IBinder binder) {\n")
             .append(INDENTS).append(INDENTS).append("this.remote = ")
             .append(serviceAidlType).append(".Stub.asInterface(binder);\n")
+            .append(INDENTS).append("}\n\n")
+
+        content.append(INDENTS).append("@Override\n")
+            .append(INDENTS).append("public IInterface getRemoteInterface() {\n")
+            .append(INDENTS).append(INDENTS).append("return this.remote;\n")
+            .append(INDENTS).append("}\n\n")
+
+        content.append(INDENTS).append("@Override\n")
+            .append(INDENTS)
+            .append("public void setMethodErrorHandler(IMethodErrorHandler handler) {\n")
+            .append(INDENTS).append(INDENTS).append("this.handler = handler;\n")
+            .append(INDENTS).append("}\n\n")
+
+        content.append(INDENTS).append("@Override\n")
+            .append(INDENTS).append("public IMethodErrorHandler getMethodErrorHandler() {\n")
+            .append(INDENTS).append(INDENTS).append("return this.handler;\n")
             .append(INDENTS).append("}\n\n")
     }
 
@@ -157,6 +178,7 @@ object ServiceRemoteProxyGenerator : ServiceSourceGenerator {
         val imported = mutableListOf<String>().apply {
             addAll(imports)
             add("android.os.IBinder")
+            add("android.os.IInterface")
             add(IRemoteServiceProxy::class.java.canonicalName)
             add(IMethodErrorHandler::class.java.canonicalName)
             add(ServiceManager::class.java.canonicalName)
