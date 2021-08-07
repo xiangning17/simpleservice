@@ -8,10 +8,15 @@ import me.xiangning.simpleservice.methoderror.IMethodErrorHandler
  */
 interface ServiceManager {
     fun <T : Any> publishService(cls: Class<T>, service: T): Boolean
-    fun <T : Any> publishRemoteService(cls: Class<T>, service: T): Boolean
-
     fun <T : Any> getService(cls: Class<T>): T?
-    fun <T : Any> bindRemoteService(cls: Class<T>, onServiceBind: OnServiceBind<T>)
+
+    fun <T : Any> publishRemoteService(
+        cls: Class<T>,
+        service: T,
+        onRemoteServicePublish: OnRemoteServicePublish? = null
+    )
+
+    fun <T : Any> bindRemoteService(cls: Class<T>, onRemoteServiceBind: OnRemoteServiceBind<T>)
 
     fun <T : Any, R : IBinder> getServiceRemote(cls: Class<T>, service: T): R
     fun <T> getServiceRemoteProxy(cls: Class<T>, service: IBinder): T

@@ -1,16 +1,13 @@
 package me.xiangning.simpleservice.demo.music;
 
-import java.util.List;
-
-import me.xiangning.simpleservice.annotation.Out;
-import me.xiangning.simpleservice.annotation.ParcelableAidl;
+import me.xiangning.simpleservice.annotation.RemoteService;
 
 /**
  * Created by xiangning on 2021/7/3.
  */
-@ParcelableAidl
+@RemoteService
 public interface MusicService {
-    boolean play(@Out List<String> names);
+    boolean play(String name);
 
     void download(String name, OnDownloadListener listener);
 }

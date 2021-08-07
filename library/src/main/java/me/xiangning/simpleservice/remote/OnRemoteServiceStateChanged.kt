@@ -11,6 +11,4 @@ interface OnRemoteServiceStateChanged {
 
     fun onServicePublish(name: String, service: IBinder)
 
-    fun onServiceStop(name: String)
-
 }

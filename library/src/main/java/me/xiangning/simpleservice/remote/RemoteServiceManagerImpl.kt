@@ -1,13 +1,14 @@
 package me.xiangning.simpleservice.remote
 
 import android.os.IBinder
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Created by xiangning on 2021/8/1.
  */
 class RemoteServiceManagerImpl : RemoteServiceManager {
 
-    private val serviceMap = mutableMapOf<String, IBinder>()
+    private val serviceMap = ConcurrentHashMap<String, IBinder>()
 
     override fun publishService(name: String, service: IBinder): Boolean {
         serviceMap[name] = service

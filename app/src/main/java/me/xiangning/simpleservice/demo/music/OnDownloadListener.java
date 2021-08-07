@@ -1,11 +1,11 @@
 package me.xiangning.simpleservice.demo.music;
 
-import me.xiangning.simpleservice.annotation.ParcelableAidl;
+import me.xiangning.simpleservice.annotation.RemoteService;
 
 /**
  * Created by xiangning on 2021/7/4.
  */
-@ParcelableAidl
+@RemoteService
 public interface OnDownloadListener {
     void onProgress(int progress);
 }
