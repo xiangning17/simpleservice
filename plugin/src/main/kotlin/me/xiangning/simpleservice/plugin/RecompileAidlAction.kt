@@ -19,7 +19,21 @@ class RecompileAidlAction(
         println("recompile aidl $scene, ${aidlDir.listFiles()?.toList()}")
         if (!done && aidlDir.exists() && !aidlDir.listFiles().isNullOrEmpty()) {
             sourceSet.aidl.srcDir(aidlDir)
-            aidlTask.taskAction()
+            try {
+                aidlTask.taskAction()
+                println("recompile aidl $scene, with taskAction")
+            } catch (e: Throwable) {
+                aidlTask.javaClass.methods.find { mtd ->
+                    mtd.annotations.find {
+                        it.annotationClass.simpleName == "TaskAction"
+                    } != null
+                }?.let { method ->
+                    method.isAccessible = true
+                    method.invoke(aidlTask)
+                    println("recompile aidl $scene, with ${method.name}")
+                }
+            }
+
             println("recompile aidl done: $scene")
             done = true
         }

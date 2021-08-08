@@ -16,7 +16,6 @@ import me.xiangning.simpleservice.annotationprocess.ProcessUtils.transformServic
 import me.xiangning.simpleservice.annotationprocess.ProcessUtils.transformServiceName
 import me.xiangning.simpleservice.annotationprocess.ServiceSourceGenerator
 import me.xiangning.simpleservice.methoderror.IMethodErrorHandler
-import org.gradle.internal.impldep.org.apache.commons.lang.text.StrBuilder
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
@@ -29,7 +28,7 @@ object ServiceRemoteProxyGenerator : ServiceSourceGenerator {
 
     private lateinit var service: TypeElement
 
-    private val content = StrBuilder()
+    private val content = StringBuilder()
 
     override fun start(service: TypeElement) {
         ServiceRemoteProxyGenerator.service = service

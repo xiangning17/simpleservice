@@ -1,7 +1,6 @@
 package me.xiangning.simpleservice.annotationprocess.generators
 
 import me.xiangning.simpleservice.annotationprocess.ProcessUtils
-import me.xiangning.simpleservice.annotationprocess.ProcessUtils.log
 import me.xiangning.simpleservice.annotationprocess.ProcessUtils.normalizeName
 import me.xiangning.simpleservice.annotationprocess.ServiceSourceGenerator
 import javax.lang.model.element.ExecutableElement
@@ -33,12 +32,10 @@ object ImportCollector : ServiceSourceGenerator {
 
     private fun recordImport(type: TypeMirror) {
         val normalize = type.normalizeName
-        log("record import: $type -> $normalize")
         ProcessUtils.REX_QUALIFY_NORMALIZE.findAll(normalize).forEach {
             val cls = it.value
             if (!ProcessUtils.isBasicType(cls)) {
                 imports.add(cls)
-                log("record import: add $cls")
             }
         }
     }

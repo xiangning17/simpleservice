@@ -9,14 +9,11 @@ plugins {
 gradlePlugin {
     plugins {
         SimpleServicePlugin {
-            id = "me.xiangning.simpleservice"
+            id = "simple-service"
             implementationClass = "me.xiangning.simpleservice.plugin.SimpleServicePlugin"
         }
     }
 }
-
-group='me.xiangning.simpleservice'
-version='1.0.0'
 
 publishing {
     // 发布
@@ -24,7 +21,7 @@ publishing {
         mavenJava(MavenPublication) {
             //指定group/artifact/version信息
             groupId project.group
-            artifactId 'plugin'
+            artifactId 'simple-service-plugin'
             version project.version
             from components.java
         }
@@ -39,7 +36,7 @@ publishing {
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
-    implementation gradleApi()
-    implementation "com.android.tools.build:gradle:4.2.1"
+    compileOnly gradleApi()
+    compileOnly "com.android.tools.build:gradle:4.2.1"
 
 }

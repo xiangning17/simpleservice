@@ -15,7 +15,6 @@ import me.xiangning.simpleservice.annotationprocess.ProcessUtils.simpleName
 import me.xiangning.simpleservice.annotationprocess.ProcessUtils.transformService
 import me.xiangning.simpleservice.annotationprocess.ProcessUtils.transformServiceName
 import me.xiangning.simpleservice.annotationprocess.ServiceSourceGenerator
-import org.gradle.internal.impldep.org.apache.commons.lang.text.StrBuilder
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
@@ -27,7 +26,7 @@ object ServiceRemoteGenerator : ServiceSourceGenerator {
 
     private lateinit var service: TypeElement
 
-    private val content = StrBuilder()
+    private val content = StringBuilder()
 
     override fun start(service: TypeElement) {
         ServiceRemoteGenerator.service = service

@@ -66,7 +66,11 @@ class SimpleServicePlugin : Plugin<Project> {
             val sourceSet = android.sourceSets.getByName(variant.name)
 
             val processorOptions = variant.javaCompileOptions.annotationProcessorOptions
-            val aidlCompile = variant.aidlCompileProvider.get()
+            val aidlCompile = try {
+                variant.aidlCompileProvider.get()
+            } catch (e: Throwable) {
+                variant.aidlCompile
+            }
 
             val outDir = outDirsByVariant[variant.name]
             if (outDir == null) {
@@ -84,7 +88,16 @@ class SimpleServicePlugin : Plugin<Project> {
                 recompileAidl.recompileAidl("before compileKotlin")
             }
 
-            val compileJavac = variant.javaCompileProvider.get()
+            val compileJavac = try {
+                variant.javaCompileProvider.get()
+            } catch (e: Throwable) {
+                variant.javaCompile
+            }
+
+            compileJavac.doFirst {
+                recompileAidl.recompileAidl("before compileJavac")
+            }
+
             compileJavac.doLast {
                 recompileAidl.recompileAidl("after compileJavac")
             }

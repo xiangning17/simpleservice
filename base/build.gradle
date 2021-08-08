@@ -1,15 +1,35 @@
 plugins {
     id 'java-library'
     id 'kotlin'
+    id 'maven-publish'
 }
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_7
     targetCompatibility = JavaVersion.VERSION_1_7
+    withSourcesJar()
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId group
+            artifactId 'simple-service-base'
+            version version
+
+            from components.java
+        }
+    }
+
+    // 发布仓库
+    repositories {
+        // 本地仓库位于USER_HOME/.m2/repository
+        mavenLocal()
+    }
 }
 
 dependencies {
     // 添加Android api编译依赖
     compileOnly files('libs/android.jar')
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    api "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 }

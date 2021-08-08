@@ -2,7 +2,7 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id 'kotlin-kapt'
-    id 'me.xiangning.simpleservice'
+    id 'simple-service'
 }
 
 android {
@@ -35,22 +35,6 @@ android {
 
 }
 
-afterEvaluate {
-    println("root dir = " + project.rootDir)
-    println("build dir = " + project.buildDir)
-    println("project dir = " + project.projectDir)
-    android.applicationVariants.each {variant ->
-        variant.sourceSets.each {
-            println 'app source set: ' + it.name + ", aidl = " + it.aidlDirectories
-        }
-
-
-        println("variant.dirName = " + variant.dirName)
-        println("variant.outputs = " + variant.outputs.toList())
-    }
-
-}
-
 lint.enabled = false
 
 dependencies {
@@ -61,8 +45,11 @@ dependencies {
     implementation 'com.google.android.material:material:1.3.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
 
-    implementation project(path: ':library')
-    kapt project(path: ':processor')
+    implementation "com.github.xiangning17:simple-service:$simple_service_version"
+    kapt "com.github.xiangning17:simple-service-annotation-processor:$simple_service_version"
+
+//    implementation project(path: ':library')
+//    kapt project(path: ':processor')
 //    annotationProcessor project(path: ':processor')
 
     testImplementation 'junit:junit:4.+'

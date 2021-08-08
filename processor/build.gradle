@@ -3,6 +3,7 @@ plugins {
     id 'kotlin'
     id 'kotlin-kapt'
     id 'groovy'
+    id 'maven-publish'
 }
 
 java {
@@ -10,14 +11,29 @@ java {
     targetCompatibility = JavaVersion.VERSION_1_7
 }
 
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId group
+            artifactId 'simple-service-annotation-processor'
+            version version
+
+            from components.java
+        }
+    }
+
+    // 发布仓库
+    repositories {
+        // 本地仓库位于USER_HOME/.m2/repository
+        mavenLocal()
+    }
+}
+
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation 'com.google.auto.service:auto-service:1.0-rc6'
 
     kapt 'com.google.auto.service:auto-service:1.0-rc6'
-
-    api gradleApi()
-    api localGroovy()
 
     implementation project(path: ':base')
 }
