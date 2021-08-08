@@ -7,6 +7,9 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
 import android.os.IInterface
+import android.os.Looper
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeoutOrNull
 import me.xiangning.simpleservice.exception.RemoteServiceException
 import me.xiangning.simpleservice.log.SimpleServiceLog
 import me.xiangning.simpleservice.methoderror.IMethodErrorHandler
@@ -14,6 +17,9 @@ import me.xiangning.simpleservice.remote.RemoteServiceBridge
 import me.xiangning.simpleservice.remote.RemoteServiceHelper
 import me.xiangning.simpleservice.remote.RemoteServiceManager
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 /**
  * Created by xiangning on 2021/8/1.
@@ -141,7 +147,6 @@ object SimpleService : ServiceManager {
         return serviceMap[cls] as? T
     }
 
-    @JvmOverloads
     override fun <T : Any> publishRemoteService(
         cls: Class<T>,
         service: T,
@@ -163,9 +168,8 @@ object SimpleService : ServiceManager {
         cls: Class<T>,
         onRemoteServiceBind: OnRemoteServiceBind<T>
     ) {
-        val cached = serviceMap[cls]
-        if (cls.isInstance(cached)) {
-            onRemoteServiceBind.onBindSuccess(cached as T)
+        getRemoteServiceFromLocal(cls)?.let {
+            onRemoteServiceBind.onBindSuccess(it)
             return
         }
 
@@ -185,6 +189,51 @@ object SimpleService : ServiceManager {
             }
         }
 
+    }
+
+    private fun <T : Any> getRemoteServiceFromLocal(cls: Class<T>): T? {
+        val cached = serviceMap[cls]
+        if (cls.isInstance(cached)) {
+            return cached as T
+        }
+
+        return null
+    }
+
+    suspend fun <T : Any> getRemoteService(cls: Class<T>): T {
+        return suspendCoroutine {
+            bindRemoteService(cls, object : OnRemoteServiceBind<T> {
+                override fun onBindSuccess(service: T) {
+                    it.resume(service)
+                }
+
+                override fun onBindFailed(error: Throwable?) {
+                    it.resumeWithException(error!!)
+                }
+
+            })
+        }
+    }
+
+    @JvmOverloads
+    fun <T : Any> getRemoteServiceWait(cls: Class<T>, awaitTime: Long = Long.MAX_VALUE): T? {
+        getRemoteServiceFromLocal(cls)?.let {
+            return it
+        }
+
+        // rsm not ready, and current thread is main.
+        // rsm would never be ready if main thread block, so just return null.
+        // when awaitTime is max it would cause dead lock evenly.
+        if (remoteServiceState != RemoteServiceState.READY && Looper.myLooper() == Looper.getMainLooper()) {
+            SimpleServiceLog.w(TAG) { "RemoteService not ready, and current thread is main, just return null." }
+            return null
+        }
+
+        return runBlocking {
+            withTimeoutOrNull(awaitTime) {
+                getRemoteService(cls)
+            }
+        }
     }
 
     override fun <T : Any, R : IBinder> getServiceRemote(cls: Class<T>, service: T): R {

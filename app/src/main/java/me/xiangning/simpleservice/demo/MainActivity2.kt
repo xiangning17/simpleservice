@@ -15,26 +15,11 @@ class MainActivity2 : AppCompatActivity() {
         setContentView(R.layout.activity_main2)
 
         findViewById<Button>(R.id.button).setOnClickListener {
-            SimpleService.bindRemoteService(
-                MusicService::class.java,
-                object : OnRemoteServiceBind<MusicService> {
-
-                    override fun onBindSuccess(service: MusicService) {
-                        Log.e("MainActivity2", "onBindSuccess: $service")
-                        thread {
-                            service.play("千里之外")
-                            Thread.sleep(2000)
-                            service.download("城里的月光") {
-                                Log.e("MainActivity2", "progress: $it")
-                            }
-
-                        }
-                    }
-
-                    override fun onBindFailed(error: Throwable?) {
-                        Log.e("MainActivity2", "onBindFailed: $error", error)
-                    }
-                })
+            thread {
+                val service =
+                    SimpleService.getRemoteServiceWait(MusicService::class.java) ?: return@thread
+                service.play("同步获取！")
+            }
         }
 
         Log.e("MainActivity2", "start bind")
