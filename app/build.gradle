@@ -48,7 +48,7 @@ dependencies {
 //    implementation "com.github.xiangning17.simpleservice:core:$lib_version"
 //    kapt "com.github.xiangning17.simpleservice:annotation-processor:$lib_version"
 
-    implementation project(path: ':library')
+    implementation project(path: ':core')
     kapt project(path: ':processor')
 //    annotationProcessor project(path: ':processor')
 

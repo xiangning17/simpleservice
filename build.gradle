@@ -2,7 +2,7 @@
 buildscript {
     ext.kotlin_version = "1.5.21"
     ext.kotlin_coroutines_version = "1.5.0"
-    ext.lib_version = "1.0.1"
+    ext.lib_version = "1.0.2"
 
     repositories {
         flatDir {
@@ -31,7 +31,7 @@ allprojects {
     }
 
     project.group = 'com.github.xiangning17.simpleservice'
-    project.version = '1.0.1'
+    project.version = '1.0.2'
 }
 
 task clean(type: Delete) {

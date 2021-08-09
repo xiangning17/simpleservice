@@ -3,7 +3,7 @@
   <component name="CompilerConfiguration">
     <bytecodeTargetLevel target="1.7">
       <module name="SimpleService.app" target="1.8" />
-      <module name="SimpleService.library" target="1.8" />
+      <module name="SimpleService.core" target="1.8" />
       <module name="SimpleService.plugin" target="1.8" />
     </bytecodeTargetLevel>
   </component>
