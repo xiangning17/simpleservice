@@ -38,5 +38,6 @@ dependencies {
 
     compileOnly gradleApi()
     compileOnly "com.android.tools.build:gradle:4.2.1"
+    compileOnly "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 
 }

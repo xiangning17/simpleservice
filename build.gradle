@@ -5,6 +5,9 @@ buildscript {
     ext.simple_service_version = "1.0.0"
 
     repositories {
+        flatDir {
+            dirs 'libs'
+        }
         google()
         mavenCentral()
         mavenLocal()
@@ -12,7 +15,8 @@ buildscript {
     dependencies {
         classpath "com.android.tools.build:gradle:4.2.1"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.21"
-        classpath "com.github.xiangning17:simple-service-plugin:$simple_service_version"
+//        classpath "com.github.xiangning17:simple-service-plugin:$simple_service_version"
+        classpath files("libs/plugin-1.0.0.jar")
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
