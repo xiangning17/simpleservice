@@ -15,7 +15,7 @@ publishing {
     publications {
         maven(MavenPublication) {
             groupId group
-            artifactId 'simple-service-annotation-processor'
+            artifactId 'annotation-processor'
             version version
 
             from components.java

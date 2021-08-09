@@ -16,7 +16,7 @@ afterEvaluate {
 
                 //指定group/artifact/version信息
                 groupId project.group
-                artifactId 'simple-service'
+                artifactId 'core'
                 version project.version
             }
         }

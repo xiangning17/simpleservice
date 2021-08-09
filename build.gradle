@@ -2,7 +2,7 @@
 buildscript {
     ext.kotlin_version = "1.5.21"
     ext.kotlin_coroutines_version = "1.5.0"
-    ext.simple_service_version = "1.0.0"
+    ext.lib_version = "1.0.1"
 
     repositories {
         flatDir {
@@ -15,7 +15,7 @@ buildscript {
     dependencies {
         classpath "com.android.tools.build:gradle:4.2.1"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.21"
-//        classpath "com.github.xiangning17:simple-service-plugin:$simple_service_version"
+//        classpath "com.github.xiangning17.simpleservice:plugin:$lib_version"
         classpath files("libs/plugin-1.0.0.jar")
 
         // NOTE: Do not place your application dependencies here; they belong
@@ -30,8 +30,8 @@ allprojects {
         mavenLocal()
     }
 
-    project.group = 'com.github.xiangning17'
-    project.version = '1.0.0'
+    project.group = 'com.github.xiangning17.simpleservice'
+    project.version = '1.0.1'
 }
 
 task clean(type: Delete) {

@@ -14,7 +14,7 @@ publishing {
     publications {
         maven(MavenPublication) {
             groupId group
-            artifactId 'simple-service-base'
+            artifactId 'base'
             version version
 
             from components.java
