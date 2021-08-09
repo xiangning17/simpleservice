@@ -16,7 +16,6 @@ class RecompileAidlAction(
     private var done = false
 
     fun recompileAidl(scene: String) {
-        println("recompile aidl $scene, ${aidlDir.listFiles()?.toList()}")
         if (!done && aidlDir.exists() && !aidlDir.listFiles().isNullOrEmpty()) {
             sourceSet.aidl.srcDir(aidlDir)
             try {

@@ -3,7 +3,9 @@
     package="me.xiangning.simpleservice">
 
     <application>
-        <service android:name=".remote.RemoteServiceBridge" />
+        <service
+            android:name=".remote.RemoteServiceBridge"
+            android:process="${bridge_service_process}" />
     </application>
 
 </manifest>

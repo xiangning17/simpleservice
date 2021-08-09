@@ -18,6 +18,7 @@ class SimpleServicePlugin : Plugin<Project> {
     private lateinit var project: Project
     private lateinit var tasks: TaskContainer
     private lateinit var android: BaseExtension
+    private lateinit var ext: SimpleServiceExtension
 
     private val outDirsByVariant = mutableMapOf<String, File>()
 
@@ -29,8 +30,10 @@ class SimpleServicePlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
         this.project = project
-        tasks = project.tasks
-        android = project.extensions.getByName("android") as BaseExtension
+        this.tasks = project.tasks
+        this.android = project.extensions.getByName("android") as BaseExtension
+        this.ext = project.extensions.create("simpleService", SimpleServiceExtension::class.java)
+
         config()
         project.afterEvaluate {
             configAfterEvaluate()
@@ -62,8 +65,18 @@ class SimpleServicePlugin : Plugin<Project> {
     }
 
     private fun configAfterEvaluate() {
-        getVariants().onEach { variant ->
+        getVariants().all { variant ->
             val sourceSet = android.sourceSets.getByName(variant.name)
+
+            kotlin.run {
+                println("[${variant.name}] ext: ${ext.bridgeServiceProcess}, ${android.defaultConfig.applicationId}")
+                val placeholders =
+                    variant.mergedFlavor.manifestPlaceholders as? MutableMap<String, Any>
+                        ?: return@run
+                placeholders[ext.initBspKey] = (ext.bridgeServiceProcess
+                    ?: android.defaultConfig.applicationId
+                    ?: return@run) as Any
+            }
 
             val processorOptions = variant.javaCompileOptions.annotationProcessorOptions
             val aidlCompile = try {
@@ -75,7 +88,7 @@ class SimpleServicePlugin : Plugin<Project> {
             val outDir = outDirsByVariant[variant.name]
             if (outDir == null) {
                 println("SimpleServicePlugin Error: outDir[${variant.name}] is null")
-                return@onEach
+                return@all
             }
             processorOptions.arguments["simpleservice.outdir"] = outDir.absolutePath
             processorOptions.arguments["simpleservice.outdir.aidl"] = outDir.aidl.absolutePath
