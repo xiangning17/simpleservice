@@ -33,10 +33,11 @@ object RemoteServiceHelper {
         }
     }
 
+    @Suppress("UNCHECKED_CAST")
     fun <T> getServiceRemoteProxy(cls: Class<T>, service: IBinder): T {
-        return proxies.getOrPut(service) {
-            WeakReference(createServiceRemoteProxy(cls, service))
-        }.get() as T
+        return (proxies[service]?.get() ?: createServiceRemoteProxy(cls, service).let {
+            proxies[service] = WeakReference(it)
+        }) as T
     }
 
     fun registerMethodErrorHandler(cls: Class<*>, handler: IMethodErrorHandler) {

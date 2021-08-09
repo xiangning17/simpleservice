@@ -143,6 +143,7 @@ object SimpleService : ServiceManager {
         return true
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun <T : Any> getService(cls: Class<T>): T? {
         return serviceMap[cls] as? T
     }
@@ -191,6 +192,7 @@ object SimpleService : ServiceManager {
 
     }
 
+    @Suppress("UNCHECKED_CAST")
     private fun <T : Any> getRemoteServiceFromLocal(cls: Class<T>): T? {
         val cached = serviceMap[cls]
         if (cls.isInstance(cached)) {
@@ -236,6 +238,7 @@ object SimpleService : ServiceManager {
         }
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun <T : Any, R : IBinder> getServiceRemote(cls: Class<T>, service: T): R {
         try {
             return RemoteServiceHelper.getServiceRemote(cls, service) as R
@@ -252,6 +255,7 @@ object SimpleService : ServiceManager {
         }
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun <T : IInterface> getServiceRemoteInterface(proxy: Any): T {
         try {
             return (proxy as IRemoteServiceProxy).getRemoteInterface() as T
