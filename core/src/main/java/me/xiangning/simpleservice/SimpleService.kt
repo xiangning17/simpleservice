@@ -29,7 +29,7 @@ object SimpleService : ServiceManager {
 
     private const val TAG = "SimpleService"
 
-    private val serviceMap = ConcurrentHashMap<Class<*>, Any>()
+    private val serviceMap = ConcurrentHashMap<String, Any>()
 
     private var appContext: Context? = null
 
@@ -92,13 +92,7 @@ object SimpleService : ServiceManager {
         delayRemoteServiceCallbacks.clear()
 
         rsm.registerServiceStateListener { name, updated ->
-            val cls = try {
-                Class.forName(name)
-            } catch (e: Exception) {
-                return@registerServiceStateListener
-            }
-
-            (serviceMap[cls] as? IRemoteServiceProxy)?.let { proxy ->
+            (serviceMap[name] as? IRemoteServiceProxy)?.let { proxy ->
                 SimpleServiceLog.d(TAG) { "update remote service: $name" }
                 proxy.setBinder(updated)
             }
@@ -138,14 +132,14 @@ object SimpleService : ServiceManager {
     }
 
     override fun <T : Any> publishService(cls: Class<T>, service: T): Boolean {
-        serviceMap[cls] = service
+        serviceMap[cls.name] = service
         SimpleServiceLog.d(TAG) { "publish service: [${cls.name}] $service" }
         return true
     }
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : Any> getService(cls: Class<T>): T? {
-        return serviceMap[cls] as? T
+        return serviceMap[cls.name] as? T
     }
 
     override fun <T : Any> publishRemoteService(
@@ -179,7 +173,7 @@ object SimpleService : ServiceManager {
             if (rs != null) {
                 try {
                     val proxy = getServiceRemoteProxy(cls, rs)
-                    serviceMap[cls] = proxy
+                    serviceMap[cls.name] = proxy
                     SimpleServiceLog.d(TAG) { "bind remote service: [${cls.name}] $onRemoteServiceBind" }
                     onRemoteServiceBind.onBindSuccess(proxy)
                 } catch (e: Exception) {
@@ -194,7 +188,7 @@ object SimpleService : ServiceManager {
 
     @Suppress("UNCHECKED_CAST")
     private fun <T : Any> getRemoteServiceFromLocal(cls: Class<T>): T? {
-        val cached = serviceMap[cls]
+        val cached = serviceMap[cls.name]
         if (cls.isInstance(cached)) {
             return cached as T
         }
