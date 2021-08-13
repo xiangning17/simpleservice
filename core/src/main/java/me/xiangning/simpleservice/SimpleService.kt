@@ -30,6 +30,7 @@ object SimpleService : ServiceManager {
     private const val TAG = "SimpleService"
 
     private val serviceMap = ConcurrentHashMap<String, Any>()
+    private val deadServiceMap = ConcurrentHashMap<String, Any>()
 
     private var appContext: Context? = null
 
@@ -71,6 +72,7 @@ object SimpleService : ServiceManager {
                 override fun onServiceDisconnected(name: ComponentName?) {
                     SimpleServiceLog.d(TAG) { "initRemoteService disconnect" }
                     synchronized(this@SimpleService) {
+                        remoteServiceManager = null
                         remoteServiceState = RemoteServiceState.DISCONNECT
                     }
                     // initRemoteService(context)
@@ -92,20 +94,50 @@ object SimpleService : ServiceManager {
         delayRemoteServiceCallbacks.clear()
 
         rsm.registerServiceStateListener { name, updated ->
+            // 尝试更新存活的service
             (serviceMap[name] as? IRemoteServiceProxy)?.let { proxy ->
                 SimpleServiceLog.d(TAG) { "update remote service: $name" }
                 proxy.setBinder(updated)
+                return@registerServiceStateListener
+            }
+
+            // 尝试重连已经死亡的代理
+            (deadServiceMap.remove(name) as? IRemoteServiceProxy)?.let { proxy ->
+                SimpleServiceLog.d(TAG) { "reconnect remote service: $name" }
+                proxy.setBinder(updated)
+                // 重新存入serviceMap
+                serviceMap[name] = proxy
+                return@registerServiceStateListener
+            }
+
+            // 添加新的远程服务
+            try {
+                addRemoteServiceToLocal(name, updated)
+            } catch (e: Exception) {
+                SimpleServiceLog.e(TAG, e) { "could not add remote service: $name" }
             }
         }
+    }
+
+    private fun addRemoteServiceToLocal(className: String, binder: IBinder): Any {
+        val cls = Class.forName(className)
+        val proxy = getServiceRemoteProxy(cls, binder)
+        serviceMap[className] = proxy
+        binder.linkToDeath({
+            serviceMap.remove(cls.name)?.let { deadServiceMap[cls.name] = it }
+        }, 0)
+
+        SimpleServiceLog.d(TAG) { "add remote service: $className" }
+        return proxy
     }
 
     private fun connectRemoteServiceManager(action: RemoteConnectCallback) {
         val rsm: RemoteServiceManager?
         synchronized(this) {
             rsm = remoteServiceManager
-            // 未调用初始化方法，抛出异常
             if (rsm == null) {
                 when (remoteServiceState) {
+                    // 未调用初始化方法，抛出异常
                     RemoteServiceState.UNINIT -> throw RemoteServiceException("you should invoke initRemoteService before all remote operation!!!")
                     RemoteServiceState.INITIALING -> {
                         delayRemoteServiceCallbacks.add(action)
@@ -159,6 +191,7 @@ object SimpleService : ServiceManager {
         }
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun <T : Any> bindRemoteService(
         cls: Class<T>,
         onRemoteServiceBind: OnRemoteServiceBind<T>
@@ -172,8 +205,7 @@ object SimpleService : ServiceManager {
             val rs = rsm.getService(cls.name)
             if (rs != null) {
                 try {
-                    val proxy = getServiceRemoteProxy(cls, rs)
-                    serviceMap[cls.name] = proxy
+                    val proxy = addRemoteServiceToLocal(cls.name, rs) as T
                     SimpleServiceLog.d(TAG) { "bind remote service: [${cls.name}] $onRemoteServiceBind" }
                     onRemoteServiceBind.onBindSuccess(proxy)
                 } catch (e: Exception) {
