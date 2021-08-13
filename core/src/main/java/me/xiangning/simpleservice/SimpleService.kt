@@ -218,6 +218,10 @@ object SimpleService : ServiceManager {
 
     }
 
+    fun <T : Any> isRemoteServiceAlive(cls: Class<T>): Boolean {
+        return serviceMap[cls.name] != null
+    }
+
     @Suppress("UNCHECKED_CAST")
     private fun <T : Any> getRemoteServiceFromLocal(cls: Class<T>): T? {
         val cached = serviceMap[cls.name]
