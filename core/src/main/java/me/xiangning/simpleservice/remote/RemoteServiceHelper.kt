@@ -38,7 +38,7 @@ object RemoteServiceHelper {
     @Suppress("UNCHECKED_CAST")
     fun <T> getServiceRemoteProxy(cls: Class<T>, service: IBinder): T {
         synchronized(proxies) {
-            return (proxies[service]?.get() ?: createServiceRemoteProxy(cls, service).let {
+            return (proxies[service]?.get() ?: createServiceRemoteProxy(cls, service).also {
                 proxies[service] = WeakReference(it)
             }) as T
         }
