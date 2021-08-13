@@ -22,6 +22,8 @@ import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
 /**
+ * # SimpleService可方便地进行组件通信
+ * 特别是让跨进程组件通信与本地组件通信一样简单
  * Created by xiangning on 2021/8/1.
  */
 @SuppressLint("StaticFieldLeak")
@@ -49,6 +51,10 @@ object SimpleService : ServiceManager {
 
     private val delayRemoteServiceCallbacks by lazy { mutableListOf<RemoteConnectCallback>() }
 
+    /**
+     * 初始化远程服务，如果要使用远程服务相关能力，必须先进行该初始化，
+     * 不用远程服务能力可以不初始化
+     */
     @Synchronized
     fun initRemoteService(context: Context) {
         if (remoteServiceManager != null
@@ -228,6 +234,9 @@ object SimpleService : ServiceManager {
 
     }
 
+    /**
+     * 判断远程服务是否还存活
+     */
     fun <T : Any> isRemoteServiceAlive(cls: Class<T>): Boolean {
         return serviceMap[cls.name] != null
     }
@@ -242,6 +251,9 @@ object SimpleService : ServiceManager {
         return null
     }
 
+    /**
+     * 协程版本的获取远程服务
+     */
     suspend fun <T : Any> getRemoteService(cls: Class<T>): T {
         return suspendCoroutine {
             bindRemoteService(cls, object : OnRemoteServiceBind<T> {
@@ -257,6 +269,9 @@ object SimpleService : ServiceManager {
         }
     }
 
+    /**
+     * 最长同步等待[awaitTime]ms以获取远程服务，默认参数为无限等
+     */
     @JvmOverloads
     fun <T : Any> getRemoteServiceWait(cls: Class<T>, awaitTime: Long = Long.MAX_VALUE): T? {
         getRemoteServiceFromLocal(cls)?.let {
@@ -315,6 +330,9 @@ object SimpleService : ServiceManager {
         return RemoteServiceHelper.getMethodErrorHandler(cls)
     }
 
+    /**
+     * 设置调试日志开关
+     */
     fun setLogDebug(debugable: Boolean) {
         SimpleServiceLog.debugable = debugable
     }
