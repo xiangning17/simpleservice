@@ -23,21 +23,25 @@ object RemoteServiceHelper {
     private val DEFAULT_ERROR_HANDLER = DefaultValueMethodErrorHandler()
 
     fun getServiceRemote(cls: Class<*>, service: Any): IBinder {
-        val binder = remotes[service]?.get()
-        if (binder != null) {
-            return binder
-        }
+        synchronized(remotes) {
+            val binder = remotes[service]?.get()
+            if (binder != null) {
+                return binder
+            }
 
-        return createServiceRemote(cls, service).also {
-            remotes[service] = WeakReference(it)
+            return createServiceRemote(cls, service).also {
+                remotes[service] = WeakReference(it)
+            }
         }
     }
 
     @Suppress("UNCHECKED_CAST")
     fun <T> getServiceRemoteProxy(cls: Class<T>, service: IBinder): T {
-        return (proxies[service]?.get() ?: createServiceRemoteProxy(cls, service).let {
-            proxies[service] = WeakReference(it)
-        }) as T
+        synchronized(proxies) {
+            return (proxies[service]?.get() ?: createServiceRemoteProxy(cls, service).let {
+                proxies[service] = WeakReference(it)
+            }) as T
+        }
     }
 
     fun registerMethodErrorHandler(cls: Class<*>, handler: IMethodErrorHandler) {
