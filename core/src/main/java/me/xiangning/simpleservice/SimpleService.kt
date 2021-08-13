@@ -179,13 +179,23 @@ object SimpleService : ServiceManager {
         service: T,
         onRemoteServicePublish: OnRemoteServicePublish?
     ) {
+        val remote: IBinder
+        try {
+            remote = getServiceRemote(cls, service)
+            addRemoteServiceToLocal(cls.name, remote)
+        } catch (e: Exception) {
+            SimpleServiceLog.e(TAG, e) { "publish remote service to local error: ${e.message}" }
+            onRemoteServicePublish?.onPublishResult(e)
+            return
+        }
+
         connectRemoteServiceManager { rsm ->
             try {
-                rsm.publishService(cls.name, getServiceRemote(cls, service))
-                SimpleServiceLog.d(TAG) { "publish remote service: [${cls.name}] $service" }
+                rsm.publishService(cls.name, remote)
+                SimpleServiceLog.d(TAG) { "publish remote service success: [${cls.name}] $service" }
                 onRemoteServicePublish?.onPublishResult(null)
             } catch (e: Exception) {
-                SimpleServiceLog.e(TAG, e) { "publishRemoteService: ${e.message}" }
+                SimpleServiceLog.e(TAG, e) { "publish remote service error: ${e.message}" }
                 onRemoteServicePublish?.onPublishResult(e)
             }
         }
@@ -273,7 +283,7 @@ object SimpleService : ServiceManager {
         try {
             return RemoteServiceHelper.getServiceRemote(cls, service) as R
         } catch (e: Exception) {
-            throw RemoteServiceException("get service remote failed")
+            throw RemoteServiceException("get service remote failed", e)
         }
     }
 
@@ -281,7 +291,7 @@ object SimpleService : ServiceManager {
         try {
             return RemoteServiceHelper.getServiceRemoteProxy(cls, service)
         } catch (e: Exception) {
-            throw RemoteServiceException("get service remote proxy failed")
+            throw RemoteServiceException("get service remote proxy failed", e)
         }
     }
 
