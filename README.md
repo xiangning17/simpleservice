@@ -1,4 +1,4 @@
-# simpleservice
+# SimpleService
 Android组件通信，优雅的实现跨进程组件间通信。
 
 [![](https://jitpack.io/v/xiangning17/simpleservice.svg)](https://jitpack.io/#xiangning17/simpleservice)
@@ -127,7 +127,7 @@ interface IMusic {
 1. 在项目根目录的build.gradle中添加jitpack的maven仓库以及插件依赖:
 ```groovy
 buildscript {
-  	// 统一simple-service库的版本号
+    // 统一simple-service库的版本号
     ext.simple_service_version = "1.0.5"
   
     repositories {
@@ -153,12 +153,11 @@ allprojects {
 apply plugin: 'simple-service'
 
 dependencies {
-  
-  	// 添加库依赖，并暴露给上层组件
+    // 添加库依赖，并暴露给上层组件
     api "com.github.xiangning17.simpleservice:core:$simple_service_version"
   
     // 声明注解处理器，用于解析RemoteService等注解，并生成相关代理类型
-  	// 如果需要处理被注解的kotlin类，需要使用kapt
+    // 如果需要处理被注解的kotlin类，需要使用kapt
     annotationProcessor "com.github.xiangning17.simpleservice:annotation-processor:$simple_service_version"
 }
 ```
@@ -181,3 +180,8 @@ simpleService {
     bridgeServiceProcess = "me.xiangning.simpleservice"
 }
 ```
+
+#### 七、其他
+
+* 依赖kotlin 1.5.21和kotlin coroutines 1.5.0
+* 向前兼容到Andrioid Gradle Plugin版本3.3.0
