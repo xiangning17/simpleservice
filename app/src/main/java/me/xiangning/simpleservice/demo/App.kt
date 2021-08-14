@@ -1,6 +1,7 @@
 package me.xiangning.simpleservice.demo
 
 import android.app.Application
+import leakcanary.AppWatcher
 import me.xiangning.simpleservice.SimpleService
 
 /**
@@ -11,5 +12,9 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
         SimpleService.initRemoteService(this)
+
+        if (!AppWatcher.isInstalled) {
+            AppWatcher.manualInstall(this)
+        }
     }
 }

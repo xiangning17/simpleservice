@@ -14,7 +14,7 @@ import java.util.*
 /**
  * Created by xiangning on 2021/8/1.
  */
-object RemoteServiceHelper {
+internal object RemoteServiceHelper {
 
     private val remotes by lazy { WeakHashMap<Any, WeakReference<IBinder>>() }
     private val proxies by lazy { WeakHashMap<IBinder, WeakReference<Any>>() }
@@ -44,6 +44,15 @@ object RemoteServiceHelper {
         }
     }
 
+    /**
+     * 更新远程代理的binder
+     */
+    fun updateServiceRemoteProxy(proxy: IRemoteServiceProxy) {
+        synchronized(proxies) {
+            proxies[proxy.getRemoteInterface().asBinder()] = WeakReference(proxy)
+        }
+    }
+
     fun registerMethodErrorHandler(cls: Class<*>, handler: IMethodErrorHandler) {
         methodErrorHandlers[cls] = handler
     }
@@ -63,9 +72,8 @@ object RemoteServiceHelper {
 
     private fun createServiceRemoteProxy(cls: Class<*>, service: IBinder): Any {
         val proxyCls = Class.forName(cls.name + SimpleServiceConstants.REMOTE_PROXY_SUFFIX)
-        if (!cls.isAssignableFrom(proxyCls) || !IRemoteServiceProxy::class.java.isAssignableFrom(
-                proxyCls
-            )
+        if (!IRemoteServiceProxy::class.java.isAssignableFrom(proxyCls)
+            || !cls.isAssignableFrom(proxyCls)
         ) {
             throw RemoteServiceException("${cls.name}RemoteProxy is not valid: $cls")
         }

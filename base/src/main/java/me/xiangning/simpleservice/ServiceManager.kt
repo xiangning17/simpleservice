@@ -37,6 +37,11 @@ interface ServiceManager {
     fun <T : Any> bindRemoteService(cls: Class<T>, onRemoteServiceBind: OnRemoteServiceBind<T>)
 
     /**
+     * 判断远程服务是否还存活,参数[proxy]为通过[SimpleService]获取的远程服务代理对象
+     */
+    fun isRemoteServiceAlive(proxy: Any): Boolean
+
+    /**
      * 获取本地服务转换成的Binder.Stub对象
      */
     fun <T : Any, R : IBinder> getServiceRemote(cls: Class<T>, service: T): R

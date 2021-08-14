@@ -4,6 +4,9 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import me.xiangning.simpleservice.OnRemoteServiceBind
 import me.xiangning.simpleservice.SimpleService
 import me.xiangning.simpleservice.demo.music.MusicService
@@ -29,9 +32,9 @@ class MainActivity2 : AppCompatActivity() {
 
                 override fun onBindSuccess(service: MusicService) {
                     Log.e("MainActivity2", "onBindSuccess: $service")
-                    thread {
+                    GlobalScope.launch {
                         service.play("千里之外")
-                        Thread.sleep(2000)
+                        delay(2000)
                         service.download("城里的月光") {
                             Log.e("MainActivity2", "progress: $it")
                         }
