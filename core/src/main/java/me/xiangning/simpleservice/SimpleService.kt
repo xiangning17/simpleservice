@@ -39,7 +39,7 @@ object SimpleService : ServiceManager {
     @Volatile
     private var remoteServiceManager: RemoteServiceManager? = null
 
-    enum class RemoteServiceState {
+    enum class RemoteServiceManagerState {
         UNINIT,
         INITIALING,
         READY,
@@ -47,7 +47,7 @@ object SimpleService : ServiceManager {
     }
 
     @Volatile
-    private var remoteServiceState = RemoteServiceState.UNINIT
+    private var remoteServiceManagerState = RemoteServiceManagerState.UNINIT
 
     private val delayRemoteServiceCallbacks by lazy { mutableListOf<RemoteConnectCallback>() }
 
@@ -58,13 +58,13 @@ object SimpleService : ServiceManager {
     @Synchronized
     fun initRemoteService(context: Context) {
         if (remoteServiceManager != null
-            || remoteServiceState == RemoteServiceState.INITIALING
-            || remoteServiceState == RemoteServiceState.READY
+            || remoteServiceManagerState == RemoteServiceManagerState.INITIALING
+            || remoteServiceManagerState == RemoteServiceManagerState.READY
         ) {
             return
         }
 
-        remoteServiceState = RemoteServiceState.INITIALING
+        remoteServiceManagerState = RemoteServiceManagerState.INITIALING
         SimpleServiceLog.d(TAG) { "initRemoteService" }
         val appContext = context.applicationContext
         appContext.bindService(
@@ -79,7 +79,7 @@ object SimpleService : ServiceManager {
                     SimpleServiceLog.d(TAG) { "initRemoteService disconnect" }
                     synchronized(this@SimpleService) {
                         remoteServiceManager = null
-                        remoteServiceState = RemoteServiceState.DISCONNECT
+                        remoteServiceManagerState = RemoteServiceManagerState.DISCONNECT
                     }
                     // initRemoteService(context)
                 }
@@ -93,11 +93,23 @@ object SimpleService : ServiceManager {
         val rsm = getServiceRemoteProxy(RemoteServiceManager::class.java, service)
         synchronized(this@SimpleService) {
             remoteServiceManager = rsm
-            remoteServiceState = RemoteServiceState.READY
+            remoteServiceManagerState = RemoteServiceManagerState.READY
         }
 
         delayRemoteServiceCallbacks.forEach { it(rsm) }
         delayRemoteServiceCallbacks.clear()
+
+        // 如果存在本地的远程服务，检测是否需要重连，及时更新重连死亡的远程服务
+        remoteServiceMap.entries.forEach { (name, serviceProxy) ->
+            if (!isRemoteServiceAlive(serviceProxy)) {
+                val updated = rsm.getService(name) ?: return@forEach
+                try {
+                    saveRemoteServiceToLocal(name, updated)
+                } catch (e: Exception) {
+                    SimpleServiceLog.e(TAG, e) { "could not reconnect remote service on rsm reconnected: $name" }
+                }
+            }
+        }
 
         rsm.registerServiceStateListener { name, updated ->
             try {
@@ -139,14 +151,14 @@ object SimpleService : ServiceManager {
         synchronized(this) {
             rsm = remoteServiceManager
             if (rsm == null) {
-                when (remoteServiceState) {
+                when (remoteServiceManagerState) {
                     // 未调用初始化方法，抛出异常
-                    RemoteServiceState.UNINIT -> throw RemoteServiceException("you should invoke initRemoteService before all remote operation!!!")
-                    RemoteServiceState.INITIALING -> {
+                    RemoteServiceManagerState.UNINIT -> throw RemoteServiceException("you should invoke initRemoteService before all remote operation!!!")
+                    RemoteServiceManagerState.INITIALING -> {
                         delayRemoteServiceCallbacks.add(action)
                         return
                     }
-                    RemoteServiceState.DISCONNECT -> {
+                    RemoteServiceManagerState.DISCONNECT -> {
                         appContext?.let {
                             initRemoteService(it)
                             delayRemoteServiceCallbacks.add(action)
@@ -157,7 +169,7 @@ object SimpleService : ServiceManager {
                     }
                 }
 
-                throw RemoteServiceException("illegal state, rsm is null and state = $remoteServiceState")
+                throw RemoteServiceException("illegal state, rsm is null and state = $remoteServiceManagerState")
             }
         }
 
@@ -280,7 +292,7 @@ object SimpleService : ServiceManager {
         // rsm not ready, and current thread is main.
         // rsm would never be ready if main thread block, so just return null.
         // when awaitTime is max it would cause dead lock evenly.
-        if (remoteServiceState != RemoteServiceState.READY && Looper.myLooper() == Looper.getMainLooper()) {
+        if (remoteServiceManagerState != RemoteServiceManagerState.READY && Looper.myLooper() == Looper.getMainLooper()) {
             SimpleServiceLog.w(TAG) { "RemoteService not ready, and current thread is main, just return null." }
             return null
         }
