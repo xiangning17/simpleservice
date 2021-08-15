@@ -137,7 +137,7 @@ interface IMusic {
 ```groovy
 buildscript {
     // 统一simple-service库的版本号
-    ext.simple_service_version = "1.0.5"
+    ext.simple_service_version = "1.0.7"
   
     repositories {
         maven { url 'https://jitpack.io' }
@@ -241,8 +241,13 @@ val musicBinder: IMusicBinder = SimpleService.getServiceRemoteInterface(IMusic::
 
 ```
 
+#### 八、已知问题
+当`远程服务`作为服务发布时，会被保存在SimpleService，不会进行回收。
 
-#### 八、其他
+当`远程服务`作为另一个当`远程服务`的回调时，其回收时间依赖程序垃圾回收的时机，不一定能及时回收。
+首先需要`远程服务代理`对象被所有使用远程回调的进程回收，其次Native的Binder对象引用才能被回收，最后`远程服务实现`对象才能被回收。所以对所有`远程服务实现`对象，请注意对其他对象的引用，避免导致内存泄漏。
+
+#### 九、其他
 
 * 依赖kotlin 1.5.21和kotlin coroutines 1.5.0
 * 向前兼容到Andrioid Gradle Plugin版本3.3.0
