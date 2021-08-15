@@ -226,7 +226,7 @@ music.play("美丽新世界")
 由于我们返回给使用者的`远程服务代理`代理了对`远程服务Binder`的访问，那其内部必然是要处理RemoteException等调用异常的，目前的方式是通过`IMethodErrorHandler`接口把具体调用时的异常处理让上层进行实现，类似动态代理。现在默认情况下，对所有`远程服务代理`的处理都是使用默认提供的`DefaultValueMethodErrorHandler`,该处理器捕获所有异常，并返回默认的返回值。你如果想自定义该异常处，比如需求上不能吃掉某些异常，需要再次把抛出去，或者针对某些特殊类型异常做特定处理等等，可以通过以下方式设置错误处理器：
 ```kotlin
 // 组件B，使用者注册IMusic远程服务的调用错误处理器（同一个进程内全局生效）
-SimpleService.registerMethodErrorHandler(IMusic::class.java, errorHandler))
+SimpleService.registerMethodErrorHandler(IMusic::class.java, errorHandler)
 ```
 
 
@@ -237,7 +237,7 @@ SimpleService.registerMethodErrorHandler(IMusic::class.java, errorHandler))
 val music = SimpleService.getRemoteServiceWait(IMusic::class.java, 5000)
 
 // 组件A，后续某个时机想拿到‘远程服务代理’对象的`远程服务Binder`
-val musicBinder：IMusicBinder = SimpleService.getServiceRemoteInterface(IMusic::class.java, music)
+val musicBinder: IMusicBinder = SimpleService.getServiceRemoteInterface(IMusic::class.java, music)
 
 ```
 
